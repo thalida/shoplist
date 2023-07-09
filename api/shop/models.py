@@ -1,7 +1,7 @@
 import uuid
 
 from django.db import models
-from .choices import StoreCategories, ProductCategories
+from .choices import StoreCategories, ProductCategories, ListCategories, Units
 
 
 class Product(models.Model):
@@ -42,6 +42,7 @@ class StoreProduct(models.Model):
     store = models.ForeignKey('Store', on_delete=models.CASCADE)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=5, decimal_places=2)
+    section = models.CharField(max_length=50, blank=True, null=True, default=None)
     aisle = models.IntegerField(default=0)
 
     def __str__(self):
@@ -54,7 +55,13 @@ class List(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
+    category = models.IntegerField(
+        choices=ListCategories.choices,
+        default=ListCategories.SHOPPING_LIST
+    )
     products = models.ManyToManyField(Product, through='ListProduct')
+
+    is_hidden = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -66,8 +73,12 @@ class ListProduct(models.Model):
 
     list = models.ForeignKey('List', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity_have = models.IntegerField(default=0)
     quantity_needed = models.IntegerField(default=1)
-    quantity_purchased = models.IntegerField(default=0)
+    unit = models.IntegerField(
+        choices=Units.choices,
+        default=Units.UNKNOWN
+    )
 
     def __str__(self):
         return self.product.name

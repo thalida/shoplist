@@ -1,5 +1,12 @@
 from django.db import models
 
+class ListCategories(models.IntegerChoices):
+    """
+    List Category Choices
+    """
+    SHOPPING_LIST = 1
+    RECIPE = 10
+
 class StoreCategories(models.IntegerChoices):
     """
     Store Category Choices
@@ -40,3 +47,19 @@ class ProductCategories(models.IntegerChoices):
     HOME = 110
 
     OUTDOOR = 120
+
+
+class Units(models.IntegerChoices):
+    UNKNOWN = 0
+    TBSP = 2
+    TSP = 3
+    CUP = 4
+    PINT = 5
+    QUART = 6
+    GALLON = 7
+    OZ = 8
+    LB = 9
+    GRAM = 10
+    KG = 11
+    ML = 12
+    L = 13

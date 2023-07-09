@@ -1,0 +1,15 @@
+{% extends "theme/base.html" %}
+
+{% block app_content %}
+
+{% if lists %}
+<ul>
+  {% for list in lists %}
+  <li><a href="/list/{{ list.uid }}/">{{ list.name }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No lists created.</p>
+{% endif %}
+
+{% endblock %}

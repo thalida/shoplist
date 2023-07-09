@@ -33,6 +33,9 @@ DEBUG = "RENDER" not in os.environ
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGIN_REGEXES = []
 ALLOWED_HOSTS = []
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
@@ -69,8 +72,13 @@ INSTALLED_APPS = [
     "django_filters",
     "graphene_django",
 
+    "tailwind",
+    "theme",
+    "django_browser_reload",
+
     "authentication.apps.AuthenticationConfig",
     "common.apps.CommonConfig",
+    "shop.apps.ShopConfig",
 ]
 
 MIDDLEWARE = [
@@ -81,9 +89,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "api.urls"
+
+TAILWIND_APP_NAME = 'theme'
 
 TEMPLATES = [
     {
@@ -196,16 +207,11 @@ UNFOLD = {
                         "icon": "dashboard",  # Supported icon set: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:index"),
                     },
-                    # {
-                    #     "title": _("Spaces"),
-                    #     "icon": "collections_bookmark",
-                    #     "link": reverse_lazy("admin:spaces_space_changelist"),
-                    # },
-                    # {
-                    #     "title": _("Links"),
-                    #     "icon": "link",
-                    #     "link": reverse_lazy("admin:links_link_changelist"),
-                    # },
+                    {
+                        "title": _("Shop"),
+                        "icon": "shopping_bag",
+                        "link": reverse_lazy("admin:shop_list_changelist"),
+                    },
                     {
                         "title": _("Users"),
                         "icon": "group",
@@ -239,21 +245,28 @@ UNFOLD = {
                 # },
             ],
         },
-        # {
-        #     "models": [
-        #         "spaces.space",
-        #         "spaces.widget",
-        #     ],
-        #     "items": [
-        #         {
-        #             "title": _("My Spaces"),
-        #             "link": reverse_lazy("admin:spaces_space_changelist"),
-        #         },
-        #         {
-        #             "title": _("My Widgets"),
-        #             "link": reverse_lazy("admin:spaces_widget_changelist"),
-        #         },
-        #     ],
-        # },
+        {
+            "models": [
+                "shop.list",
+                "shop.product",
+                "shop.store",
+                "shop.storeproduct",
+                "shop.listproduct",
+            ],
+            "items": [
+                {
+                    "title": _("All Lists"),
+                    "link": reverse_lazy("admin:shop_list_changelist"),
+                },
+                {
+                    "title": _("All Products"),
+                    "link": reverse_lazy("admin:shop_product_changelist"),
+                },
+                {
+                    "title": _("All Stores"),
+                    "link": reverse_lazy("admin:shop_store_changelist"),
+                },
+            ],
+        },
     ],
 }
