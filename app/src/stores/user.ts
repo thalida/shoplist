@@ -1,7 +1,7 @@
-import { ref, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import type { IUser } from '@/types/user';
+import type { IUsers } from '@/types/user';
 import {
   getMe as getMeReq,
   loginWithGoogle as loginWithGoogleReq,
@@ -11,25 +11,32 @@ import {
 export const useUserStore = defineStore('user', () => {
   const accessToken: Ref<string | null> = useLocalStorage('shoplist/user/accessToken', null)
   const refreshToken: Ref<string | null> = useLocalStorage('shoplist/user/refreshToken', null)
-  const user: Ref<IUser | null> = ref(null)
+  const myId: Ref<string|null> = ref(null)
+  const users: Ref<IUsers> = ref({})
   const isAuthenticated = ref(false)
+
+  const me = computed(() => {
+    return myId.value ? users.value[myId.value] : null
+  })
+
 
   async function getMe() {
     if (!accessToken.value) {
       return;
     }
 
-    const userRes = await getMeReq()
+    const meRes = await getMeReq()
 
-    user.value = userRes
+    myId.value = meRes.uid
+    users.value[myId.value] = meRes
 
-    return user.value;
+    return me.value
   }
 
   async function autoLogin() {
     await getMe()
 
-    if (user.value) {
+    if (me.value) {
       isAuthenticated.value = true
       return isAuthenticated.value;
     }
@@ -55,7 +62,7 @@ export const useUserStore = defineStore('user', () => {
     isAuthenticated.value = false
     accessToken.value = null
     refreshToken.value = null
-    user.value = null
+    users.value = {}
 
     window.location.href = '/'
   }
@@ -63,7 +70,8 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     accessToken,
-    user,
+    users,
+    me,
     isAuthenticated,
     autoLogin,
     loginWithGoogle,

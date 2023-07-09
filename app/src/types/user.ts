@@ -1,9 +1,13 @@
 export interface IUser {
   uid: string,
-  username: string,
   email: string,
   first_name: string,
   last_name: string,
+  avatar: string,
+}
+
+export interface IUsers {
+  [key: string]: IUser
 }
 
 export interface IGoogleAuthRes {
