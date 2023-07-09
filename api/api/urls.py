@@ -17,11 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path, include
 from django.views.decorators.csrf import csrf_exempt
-
 from graphene_django.views import GraphQLView
+from rest_framework import routers
+from authentication.views import UserViewSet
+
+router = routers.SimpleRouter()
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
-    re_path(r'^auth/', include('drf_social_oauth2.urls', namespace='drf')),
+    path("api/", include(router.urls)),
+    re_path(r'^api/auth/', include('drf_social_oauth2.urls', namespace='drf')),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path("admin/", admin.site.urls),
 ]
