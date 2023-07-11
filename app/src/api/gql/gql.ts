@@ -13,7 +13,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "query AllProducts {\n  allProducts {\n    edges {\n      node {\n        name\n        stores {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}": types.AllProductsDocument,
+    "query AllProducts {\n  allProducts {\n    edges {\n      node {\n        uid\n        name\n        stores {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}": types.AllProductsDocument,
     "mutation RegisterSocial($socialAccessToken: String!, $socialBackend: String!) {\n  registerSocial(\n    input: {accessToken: $socialAccessToken, socialBackend: $socialBackend}\n  ) {\n    token\n  }\n}": types.RegisterSocialDocument,
     "mutation TokenAuth($username: String!, $password: String!) {\n  tokenAuth(input: {username: $username, password: $password}) {\n    token\n  }\n}": types.TokenAuthDocument,
     "mutation VerifyToken($token: String!) {\n  verifyToken(input: {token: $token}) {\n    payload\n  }\n}": types.VerifyTokenDocument,
@@ -37,7 +37,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query AllProducts {\n  allProducts {\n    edges {\n      node {\n        name\n        stores {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}"): (typeof documents)["query AllProducts {\n  allProducts {\n    edges {\n      node {\n        name\n        stores {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}"];
+export function graphql(source: "query AllProducts {\n  allProducts {\n    edges {\n      node {\n        uid\n        name\n        stores {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}"): (typeof documents)["query AllProducts {\n  allProducts {\n    edges {\n      node {\n        uid\n        name\n        stores {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n        lists {\n          edges {\n            node {\n              uid\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

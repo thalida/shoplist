@@ -5,7 +5,7 @@
 
 1. ~~Setup auth / login~~
 2. ~~Setup websockets (channels)~~
-3. Setup graphql
+3. ~~Setup graphql~~
 4. Setup auth https://python-social-auth.readthedocs.io/en/latest/backends/oidc.html
 5. setup homepage
 - show all lists:

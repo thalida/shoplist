@@ -2,10 +2,12 @@ query AllProducts {
   allProducts {
     edges {
       node {
+        uid
         name
         stores {
           edges {
             node {
+              uid
               name
             }
           }
@@ -13,6 +15,7 @@ query AllProducts {
         lists {
           edges {
             node {
+              uid
               name
             }
           }
