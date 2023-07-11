@@ -1,8 +1,59 @@
 import uuid
 
 from django.db import models
-from .choices import StoreCategories, ProductCategories, ListCategories, Units
+from django.utils.translation import gettext_lazy as _
 
+class ListCategory(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('List Categories')
+
+class StoreCategory(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('Store Categories')
+
+class ProductCategory(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('Product Categories')
+
+class ProductUnit(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('Product Units')
 
 class Product(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -10,10 +61,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.IntegerField(
-        choices=ProductCategories.choices,
-        default=ProductCategories.UNKNOWN
-    )
+    category = models.ForeignKey('ProductCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -25,10 +73,7 @@ class Store(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.IntegerField(
-        choices=StoreCategories.choices,
-        default=StoreCategories.GROCERY
-    )
+    category = models.ForeignKey('StoreCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
     products = models.ManyToManyField('Product', through='StoreProduct')
 
     def __str__(self):
@@ -55,10 +100,7 @@ class List(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.IntegerField(
-        choices=ListCategories.choices,
-        default=ListCategories.SHOPPING_LIST
-    )
+    category = models.ForeignKey('ListCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
     products = models.ManyToManyField(Product, through='ListProduct')
 
     is_hidden = models.BooleanField(default=False)
@@ -75,10 +117,7 @@ class ListProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity_have = models.IntegerField(default=0)
     quantity_needed = models.IntegerField(default=1)
-    unit = models.IntegerField(
-        choices=Units.choices,
-        default=Units.UNKNOWN
-    )
+    unit = models.ForeignKey('ProductUnit', blank=True, null=True, default=None, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.product.name

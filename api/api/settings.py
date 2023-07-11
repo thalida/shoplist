@@ -277,6 +277,11 @@ UNFOLD = {
                         "link": reverse_lazy("admin:shop_list_changelist"),
                     },
                     {
+                        "title": _("Shop Choices"),
+                        "icon": "shopping_bag",
+                        "link": reverse_lazy("admin:shop_listcategory_changelist"),
+                    },
+                    {
                         "title": _("Users"),
                         "icon": "group",
                         "link": reverse_lazy("admin:authentication_user_changelist"),
@@ -329,6 +334,32 @@ UNFOLD = {
                 {
                     "title": _("All Stores"),
                     "link": reverse_lazy("admin:shop_store_changelist"),
+                },
+            ],
+        },
+        {
+            "models": [
+                "shop.listcategory",
+                "shop.storecategory",
+                "shop.productcategory",
+                "shop.productunit",
+            ],
+            "items": [
+                {
+                    "title": _("List Categories"),
+                    "link": reverse_lazy("admin:shop_listcategory_changelist"),
+                },
+                {
+                    "title": _("Store Categories"),
+                    "link": reverse_lazy("admin:shop_storecategory_changelist"),
+                },
+                {
+                    "title": _("Product Categories"),
+                    "link": reverse_lazy("admin:shop_productcategory_changelist"),
+                },
+                {
+                    "title": _("Product Units"),
+                    "link": reverse_lazy("admin:shop_productunit_changelist"),
                 },
             ],
         },

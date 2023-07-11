@@ -2,7 +2,48 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin, TabularInline
 
-from .models import Product, Store, StoreProduct, List, ListProduct
+from .models import (
+    ListCategory,
+    StoreCategory,
+    ProductCategory,
+    ProductUnit,
+    Product,
+    Store,
+    StoreProduct,
+    List,
+    ListProduct,
+)
+
+@admin.register(ListCategory)
+class ListCategoryAdmin(ModelAdmin):
+    """
+    ListCategory admin
+    """
+    pass
+
+
+@admin.register(StoreCategory)
+class StoreCategoryAdmin(ModelAdmin):
+    """
+    StoreCategory admin
+    """
+    pass
+
+@admin.register(ProductCategory)
+class ProductCategoryAdmin(ModelAdmin):
+    """
+    ProductCategory admin
+    """
+    pass
+
+
+@admin.register(ProductUnit)
+class ProductUnitAdmin(ModelAdmin):
+    """
+    ProductUnit admin
+    """
+    pass
+
 
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
