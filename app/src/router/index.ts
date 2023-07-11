@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '../views/SigninView.vue'
 import { useUserStore } from '@/stores/user'
+import RouterOnlyView from '@/views/RouterOnlyView.vue'
 import ListsView from '@/views/ListsView.vue'
 
 export const SIGNIN_ROUTE = 'Signin'
@@ -25,12 +26,17 @@ const router = createRouter({
     {
       alias: '/',
       path: '/lists',
-      name: LISTS_ROUTE,
-      component: ListsView,
+      component: RouterOnlyView,
       meta: {
         requiresAuth: true,
       },
       children: [
+        {
+          path: '',
+          name: LISTS_ROUTE,
+          component: ListsView,
+          props: true,
+        },
         {
           path: ':listId',
           name: LIST_DETAIL_ROUTE,

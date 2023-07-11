@@ -6,7 +6,7 @@ import {
   Squares2X2Icon,
   PowerIcon,
 } from '@heroicons/vue/24/outline'
-import { useRoute, RouterLink } from 'vue-router';
+import { useRoute, RouterLink, type RouteLocationNamedRaw, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { getFullName } from '@/utils/user';
 import AuthButton from '@/components/AuthButton.vue';
@@ -14,6 +14,7 @@ import UserAvatar from '@/components/UserAvatar.vue';
 import { LISTS_ROUTE, LIST_DETAIL_ROUTE, PRODUCTS_ROUTE, STORES_ROUTE } from '@/router';
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 const myFullName = computed(() => {
   return userStore.me ? getFullName(userStore.me) : null
@@ -23,8 +24,9 @@ const isAuthenticated = computed(() => {
   return userStore.isAuthenticated;
 });
 
-function isActiveRoutePath(routeName: string) {
-  return route.matched.some((record) => record.name === routeName);
+function isActiveRoutePath(navRoute: RouteLocationNamedRaw) {
+  const resolvedRoute = router.resolve(navRoute);
+  return route.matched.some((record) => record.path === resolvedRoute.path);
 }
 
 const navigation = [
@@ -100,7 +102,7 @@ const navigation = [
                 {{ item.name }}
               </RouterLink>
               <div
-                v-if="userStore.isAuthenticated && isActiveRoutePath(item.route.name) && item.children"
+                v-if="userStore.isAuthenticated && isActiveRoutePath(item.route) && item.children"
                 class="divide-y divide-gray-700 space-y-4 p-2"
               >
                 <div v-for="childItem in item.children" :key="childItem.name" class="pt-4 first:pt-0">

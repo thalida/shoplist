@@ -9,5 +9,8 @@ defineProps({
 </script>
 
 <template>
-  Lists Detail View {{ listId }}
+  <AppMain>
+    <h1>List Detail View</h1>
+    <p>listId: {{ listId }}</p>
+  </AppMain>
 </template>
