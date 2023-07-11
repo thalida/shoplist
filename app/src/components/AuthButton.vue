@@ -1,39 +1,35 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import type { CallbackTypes } from "vue3-google-login";
-import { PowerIcon } from '@heroicons/vue/24/outline'
 import { useUserStore } from '@/stores/user';
-import { getFullName } from '@/utils/user';
-import UserAvatar from '@/components/UserAvatar.vue';
+import IconGoogle from "@/components/icons/IconGoogle.vue";
 
-const userStore = useUserStore()
-const myFullName = computed(() => {
-  return userStore.me ? getFullName(userStore.me) : null
+defineProps({
+  theme: {
+    type: String,
+    default: 'dark',
+    options: ['dark', 'light'],
+  },
 })
 
-const isAuthenticated = computed(() => {
-  return userStore.isAuthenticated;
-});
+const userStore = useUserStore()
 const handleLoginWithGoogle: CallbackTypes.TokenResponseCallback = (response) => {
   userStore.loginWithGoogle(response.access_token)
 };
 </script>
 
 <template>
-  <div class="flex flex-row space-x-4">
-    <div v-if="isAuthenticated && userStore.me" class="w-full flex flex-row items-center justify-between gap-x-4 py-3">
-      <div class="flex flex-row items-center gap-x-4 text-sm font-semibold leading-6 text-white">
-        <UserAvatar :user="userStore.me" />
-        <span aria-hidden="true">{{ myFullName }}</span>
-      </div>
-      <button @click="userStore.logout" type="button" class="rounded-full bg-gray-800 p-1.5 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-        <PowerIcon class="h-5 w-5" aria-hidden="true" />
-      </button>
-    </div>
-    <GoogleLogin v-else :callback="handleLoginWithGoogle" popup-type="TOKEN">
-      <button>Signin with Google</button>
-    </GoogleLogin>
-  </div>
+  <GoogleLogin :callback="handleLoginWithGoogle" popup-type="TOKEN">
+    <button
+      class="w-full flex flex-row items-center justify-center gap-3 rounded-md px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+      :class="{
+        'bg-gray-900 focus-visible:outline-gray-900 text-white': theme === 'dark',
+        'bg-white focus-visible:outline-white text-gray-950': theme === 'light',
+      }"
+    >
+      <IconGoogle class="h-5 w-5" aria-hidden="true" />
+      <span>Sign in with Google</span>
+    </button>
+  </GoogleLogin>
 </template>
 
 <style scoped>

@@ -23,9 +23,7 @@ onMounted(async () => {
     <div>
       <AppHeader />
       <AppSidebar />
-      <AppMain>
-        <RouterView />
-      </AppMain>
+      <RouterView />
     </div>
   </template>
 </template>

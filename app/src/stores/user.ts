@@ -7,6 +7,7 @@ import {
   loginWithGoogle as loginWithGoogleReq,
   logout as logoutReq,
 } from '@/api/user';
+import router from '@/router';
 
 export const useUserStore = defineStore('user', () => {
   const accessToken: Ref<string | null> = useLocalStorage('shoplist/user/accessToken', null)
@@ -34,6 +35,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function autoLogin() {
+    if (me.value) {
+      return isAuthenticated.value;
+    }
+
     await getMe()
 
     if (me.value) {
@@ -53,7 +58,9 @@ export const useUserStore = defineStore('user', () => {
     accessToken.value = res.access_token
     refreshToken.value = res.refresh_token
     await getMe()
+
     isAuthenticated.value = true
+    router.push({ name: 'HomeView' })
   }
 
   async function logout() {

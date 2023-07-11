@@ -30,15 +30,10 @@
 
 
 ## Nav & Routes
-- home:
-  - purpose: recent activity
-  - pinned lists (action: view all | view list)
-  - recent lists (action: view all | view list)
-  - recent products (action: view all | view list)
-
 - lists:
   - purpose: view all lists
   - pinned lists (action: view all | view list)
+  - recent lists (action: view all | view list)
   - all lists table (action: view list)
     - features: search, filter, sort all fields
     - ordered by: last updated

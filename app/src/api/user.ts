@@ -32,8 +32,6 @@ export async function loginWithGoogle(googleToken: string) {
     client_secret: import.meta.env.VITE_API_AUTH_CLIENT_SECRET,
   })
 
-  console.log(res.data)
-
   return res.data
 }
 
