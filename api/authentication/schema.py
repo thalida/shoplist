@@ -11,7 +11,7 @@ class UserNode(IsAuthenticated, DjangoObjectType):
     class Meta():
         model = User
         filter_fields = ["uid", "username", "email"]
-        exclude = ["email", "password"]
+        fields = ("uid", "username", "email", "first_name", "last_name", "avatar")
         interfaces = (graphene.relay.Node, )
 
 

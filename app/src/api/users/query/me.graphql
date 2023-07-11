@@ -3,6 +3,7 @@ query Me {
     id,
     uid,
     username,
+    email,
     firstName,
     lastName,
     avatar,

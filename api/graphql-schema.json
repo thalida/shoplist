@@ -1831,34 +1831,6 @@
             {
               "args": [],
               "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "lastLogin",
-              "type": {
-                "kind": "SCALAR",
-                "name": "DateTime",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "Designates that this user has all permissions without explicitly assigning them.",
-              "isDeprecated": false,
-              "name": "isSuperuser",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
               "description": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
               "isDeprecated": false,
               "name": "username",
@@ -1907,54 +1879,6 @@
             {
               "args": [],
               "deprecationReason": null,
-              "description": "Designates whether the user can log into this admin site.",
-              "isDeprecated": false,
-              "name": "isStaff",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
-              "isDeprecated": false,
-              "name": "isActive",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": null,
-              "isDeprecated": false,
-              "name": "dateJoined",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "DateTime",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
               "name": "uid",
@@ -1964,6 +1888,22 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "UUID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "email",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
                   "ofType": null
                 }
               }
