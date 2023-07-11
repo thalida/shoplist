@@ -137,23 +137,6 @@ GRAPHENE = {
     ],
 }
 
-REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
-        "drf_social_oauth2.authentication.SocialAuthentication",
-    ),
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Your Project API",
-    "DESCRIPTION": "Your project description",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
-}
-
-
 # User & Authentication
 
 AUTH_USER_MODEL = "authentication.User"
@@ -162,7 +145,7 @@ AUTHENTICATION_BACKENDS = (
     # Google  OAuth2
     "social_core.backends.google.GoogleOAuth2",
     # drf-social-oauth2
-    "drf_social_oauth2.backends.DjangoOAuth2",
+    # "drf_social_oauth2.backends.DjangoOAuth2",
     # graphql-jwt
     "graphql_jwt.backends.JSONWebTokenBackend",
     # Django
