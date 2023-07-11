@@ -1,8 +1,4 @@
 import functools
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated as DRFIsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes
 
 def login_required(func):
@@ -19,7 +15,7 @@ def login_required(func):
 
 class IsAuthenticated:
     @classmethod
-    @permission_classes([DRFIsAuthenticated])
+    @login_required
     def get_queryset(cls, queryset, info):
         return queryset
 
