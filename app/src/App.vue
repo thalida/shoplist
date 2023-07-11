@@ -9,6 +9,25 @@ import { useUserStore } from './stores/user';
 const isLoading = ref(true);
 const userStore = useUserStore();
 
+const room = 'general'
+const socket = new WebSocket('ws://127.0.0.1:8000/ws/chat/' + room + '/')
+socket.onopen = function(e) {
+  console.log('Connection established')
+}
+socket.onmessage = function(event) {
+  console.log(event.data)
+}
+socket.onclose = function(event) {
+  if (event.wasClean) {
+    console.log('Connection closed')
+  } else {
+    console.log('Connection interrupted')
+  }
+  console.log('Code: ' + event.code + ' Reason: ' + event.reason)
+}
+socket.onerror = function(error) {
+  console.log('Error: ' + error.message)
+}
 onMounted(async () => {
   await userStore.autoLogin();
   isLoading.value = false

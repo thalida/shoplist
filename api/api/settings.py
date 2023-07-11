@@ -45,6 +45,8 @@ if DEBUG:
     ALLOWED_HOSTS += [
         "localhost",
         "127.0.0.1",
+        "localhost:3000",
+        "127.0.0.1:8000",
     ]
 
     CORS_ALLOWED_ORIGIN_REGEXES += [
@@ -56,6 +58,8 @@ if DEBUG:
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.forms",
@@ -72,11 +76,13 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "social_django",
     "drf_social_oauth2",
-    "rest_framework",
-    "drf_spectacular",
 
     "django_filters",
+    "rest_framework",
     "graphene_django",
+    "drf_spectacular",
+
+    "channels",
 
     "authentication.apps.AuthenticationConfig",
     "common.apps.CommonConfig",
@@ -117,6 +123,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "api.wsgi.application"
+ASGI_APPLICATION = "api.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 GRAPHENE = {
     "SCHEMA": "api.schema.schema",
@@ -131,10 +143,10 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "Your Project API",
+    "DESCRIPTION": "Your project description",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
 
