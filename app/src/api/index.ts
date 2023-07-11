@@ -8,25 +8,7 @@ import {
   type MaybeRef,
 } from "villus";
 import merge from "lodash/merge";
-import { useUserStore } from '@/stores/user'
-
-export const API_URL = import.meta.env.VITE_API_URL
-
-export function getConfig() {
-  const userStore = useUserStore()
-  const headers: { [key: string]: any } = {}
-
-  if (userStore.accessToken) {
-    headers['Authorization'] = `JWT ${userStore.accessToken}`
-  }
-
-  const config = {
-    withCredentials: true,
-    headers,
-  }
-
-  return config
-}
+import { useUserStore } from '@/stores/user';
 
 interface MutationExecutionOptions {
   context: MaybeRef<QueryExecutionContext>;
