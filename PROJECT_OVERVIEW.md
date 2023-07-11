@@ -3,19 +3,8 @@
 
 ## Tasks
 
-### Django
--[] setup channels
-
-### Vue
--[] setup graphql
--[] setup auth
--[] setup websockets
-
-
-## Queue
-
-1. Setup auth / login
-2. Setup websockets
+1. ~~Setup auth / login~~
+2. Setup websockets (channels)
 3. Setup graphql
 4. setup homepage
 - show all lists:
