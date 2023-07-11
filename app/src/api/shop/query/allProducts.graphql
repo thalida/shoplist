@@ -1,0 +1,23 @@
+query AllProducts {
+  allProducts {
+    edges {
+      node {
+        name
+        stores {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+        lists {
+          edges {
+            node {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

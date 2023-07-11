@@ -2,6 +2,8 @@
 import type { CallbackTypes } from "vue3-google-login";
 import { useUserStore } from '@/stores/user';
 import IconGoogle from "@/components/icons/IconGoogle.vue";
+import { useRouter } from "vue-router";
+import { HOME_ROUTE } from "@/router";
 
 defineProps({
   theme: {
@@ -11,10 +13,22 @@ defineProps({
   },
 })
 
+const router = useRouter();
 const userStore = useUserStore()
+// const handleLoginWithGoogle: CallbackTypes.TokenResponseCallback = (response) => {
+//   userStore.loginWithGoogle(response.access_token)
+// };
+
 const handleLoginWithGoogle: CallbackTypes.TokenResponseCallback = (response) => {
-  userStore.loginWithGoogle(response.access_token)
+  userStore
+    .loginWithSocial({ socialAccessToken: response.access_token, socialBackend: "google-oauth2" })
+    .then(handleResponse);
 };
+function handleResponse() {
+  if (userStore.isAuthenticated) {
+    router.push({ name: HOME_ROUTE });
+  }
+}
 </script>
 
 <template>

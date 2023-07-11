@@ -1,9 +1,25 @@
 import graphene
+from django.db.models import Q
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
+
+from shop.graphql.nodes import (
+    ProductNode,
+    StoreNode,
+    ListNode,
+)
 
 
 class ShopQuery(graphene.ObjectType):
-    pass
+    product = graphene.relay.Node.Field(ProductNode)
+    all_products = DjangoFilterConnectionField(ProductNode)
+
+    store = graphene.relay.Node.Field(StoreNode)
+    all_stores = DjangoFilterConnectionField(StoreNode)
+
+    list = graphene.relay.Node.Field(ListNode)
+    all_lists = DjangoFilterConnectionField(ListNode)
 
 
 class ShopMutation(graphene.ObjectType):
-    pass
+    create_product = graphene.Field(ProductNode)

@@ -1,12 +1,14 @@
 import graphene
+
+from authentication.schema import UserQuery, UserMutation
 from shop.schema import ShopQuery, ShopMutation
 
 
-class Query(ShopQuery, graphene.ObjectType):
+class Query(UserQuery, ShopQuery, graphene.ObjectType):
     pass
 
 
-class Mutation(ShopMutation, graphene.ObjectType):
+class Mutation(UserMutation, ShopMutation, graphene.ObjectType):
     pass
 
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IUser } from '@/types/user';
 import { computed, type PropType } from 'vue';
+import { getInitials } from '@/utils/user';
 
 const props = defineProps({
   user: {
@@ -8,10 +9,7 @@ const props = defineProps({
     required: true,
   },
 })
-
-const initials = computed(() => {
-  return props.user.first_name[0] + props.user.last_name[0];
-})
+const initials = computed(() => getInitials(props.user))
 </script>
 
 <template>

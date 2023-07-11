@@ -138,8 +138,8 @@ const navigation = [
           </ul>
         </li>
         <li class="mt-auto flex items-center justify-center">
-          <div v-if="isAuthenticated && userStore.me" class="w-full flex flex-row items-center justify-between gap-x-4 py-3">
-            <div class="flex flex-row items-center gap-x-4 text-sm font-semibold leading-6 text-white">
+          <div v-if="isAuthenticated" class="w-full flex flex-row items-center justify-between gap-x-4 py-3">
+            <div v-if="userStore.me" class="flex flex-row items-center gap-x-4 text-sm font-semibold leading-6 text-white">
               <UserAvatar :user="userStore.me" />
               <span>{{ myFullName }}</span>
             </div>

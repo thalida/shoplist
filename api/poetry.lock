@@ -690,6 +690,23 @@ files = [
 Django = ">=3.2"
 
 [[package]]
+name = "django-graphql-jwt"
+version = "0.3.4"
+description = "JSON Web Token for Django GraphQL."
+optional = false
+python-versions = ">=3.6,<4.0"
+files = [
+    {file = "django-graphql-jwt-0.3.4.tar.gz", hash = "sha256:654808417a1fa97e4d489766b61046fa8006f58dfad1c44cc3a37a9e4929203b"},
+    {file = "django_graphql_jwt-0.3.4-py3-none-any.whl", hash = "sha256:fb20194bda649b2b1b49049ef84d0e957851df485fba7f1901aace54ca328063"},
+]
+
+[package.dependencies]
+Django = ">=2.0"
+graphene = ">=2.1.5"
+graphene-django = ">=2.0.0"
+PyJWT = ">=2,<3"
+
+[[package]]
 name = "django-oauth-toolkit"
 version = "2.3.0"
 description = "OAuth2 Provider for Django"
@@ -2259,4 +2276,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a1a7edccd5fd81c70743ad6fbf90754b99a2c1978322faa5c9f6fc641766e59e"
+content-hash = "af073728bed6060d82d56bd8f9fa3bc9b5e8d2b8dbad7094dbbf0cd48c41f228"

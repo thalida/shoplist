@@ -1,10 +1,8 @@
-export interface IUser {
-  uid: string,
-  email: string,
-  first_name: string,
-  last_name: string,
-  avatar: string,
-}
+import {
+  type UserNode,
+} from "@/api/gql/graphql";
+
+export interface IUser extends UserNode {}
 
 export interface IUsers {
   [key: string]: IUser

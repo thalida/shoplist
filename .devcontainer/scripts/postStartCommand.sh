@@ -1,3 +1,3 @@
 #!/bin/bash
 
-# chmod -R +x /workspace/scripts
+chmod -R +x /workspaces/shoplist/scripts

@@ -132,6 +132,9 @@ CHANNEL_LAYERS = {
 
 GRAPHENE = {
     "SCHEMA": "api.schema.schema",
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
 }
 
 REST_FRAMEWORK = {
@@ -160,9 +163,16 @@ AUTHENTICATION_BACKENDS = (
     "social_core.backends.google.GoogleOAuth2",
     # drf-social-oauth2
     "drf_social_oauth2.backends.DjangoOAuth2",
+    # graphql-jwt
+    "graphql_jwt.backends.JSONWebTokenBackend",
     # Django
     "django.contrib.auth.backends.ModelBackend",
 )
+
+
+ACTIVATE_JWT = True
+
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",

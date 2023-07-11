@@ -74,7 +74,7 @@ class Store(models.Model):
 
     name = models.CharField(max_length=50)
     category = models.ForeignKey('StoreCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
-    products = models.ManyToManyField('Product', through='StoreProduct')
+    products = models.ManyToManyField('Product', through='StoreProduct', related_name='stores')
 
     def __str__(self):
         return self.name
@@ -101,7 +101,7 @@ class List(models.Model):
 
     name = models.CharField(max_length=50)
     category = models.ForeignKey('ListCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
-    products = models.ManyToManyField(Product, through='ListProduct')
+    products = models.ManyToManyField(Product, through='ListProduct', related_name='lists')
 
     is_hidden = models.BooleanField(default=False)
 

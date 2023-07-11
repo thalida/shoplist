@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Thalida Noel <shoplist@thalida.com>"]
 license = "GNU AFFERO GENERAL PUBLIC LICENSE"
-readme = "README.md"
+readme = "../README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -22,6 +22,7 @@ drf-social-oauth2 = "^2.1.3"
 drf-spectacular = "^0.26.3"
 channels = {extras = ["daphne"], version = "^4.0.0"}
 channels-redis = "^4.1.0"
+django-graphql-jwt = "^0.3.4"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.17.3"
