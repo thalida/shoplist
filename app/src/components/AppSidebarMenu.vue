@@ -6,11 +6,14 @@ import {
   Squares2X2Icon,
   PowerIcon,
 } from '@heroicons/vue/24/outline'
+import { useRoute, RouterLink } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { getFullName } from '@/utils/user';
 import AuthButton from '@/components/AuthButton.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import { LISTS_ROUTE, LIST_DETAIL_ROUTE, PRODUCTS_ROUTE, STORES_ROUTE } from '@/router';
 
+const route = useRoute()
 const userStore = useUserStore()
 const myFullName = computed(() => {
   return userStore.me ? getFullName(userStore.me) : null
@@ -20,14 +23,60 @@ const isAuthenticated = computed(() => {
   return userStore.isAuthenticated;
 });
 
-const pinnedLists = [
-  { id: 1, name: 'Grocery', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Home Goods', href: '#', initial: 'T', current: false },
-]
+function isActiveRoutePath(routeName: string) {
+  return route.matched.some((record) => record.name === routeName);
+}
 
-const recentLists = [
-  { id: 1, name: 'Misc', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Packing', href: '#', initial: 'T', current: false },
+const navigation = [
+  {
+    name: "Lists",
+    icon: QueueListIcon,
+    current: false,
+    route: { name: LISTS_ROUTE },
+    children: [
+      {
+        name: "Pinned",
+        children: [
+          {
+            name: "Grocery",
+            route: { name: LIST_DETAIL_ROUTE, params: { listId: "1" } },
+          },
+          {
+            name: "Home Goods",
+            route: { name: LIST_DETAIL_ROUTE, params: { listId: "2" } },
+          },
+        ],
+      },
+      {
+        name: "Recent",
+        children: [
+          {
+            name: "Grocery",
+            route: { name: LIST_DETAIL_ROUTE, params: { listId: "3" } },
+          },
+          {
+            name: "Home Goods",
+            route: { name: LIST_DETAIL_ROUTE, params: { listId: "4" } },
+          },
+        ],
+      },
+      {
+        name: "View all",
+        route: { name: LISTS_ROUTE },
+        disableActive: true,
+      },
+    ]
+  },
+  {
+    name: "Products",
+    route: { name: PRODUCTS_ROUTE },
+    icon: Squares2X2Icon,
+  },
+  {
+    name: "Stores",
+    route: { name: STORES_ROUTE },
+    icon: BuildingStorefrontIcon,
+  },
 ]
 
 </script>
@@ -39,56 +88,50 @@ const recentLists = [
     </div>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
+
         <li class="space-y-3">
           <ul role="list" class="-mx-2 space-y-1">
-            <li>
-              <a href="#" :class="['text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                <QueueListIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Lists
-              </a>
-              <div v-if="userStore.isAuthenticated" class="divide-y divide-gray-700 space-y-4 p-2">
-                <div>
-                  <div class="text-xs font-semibold leading-6 text-gray-300">Pinned</div>
-                  <ul role="list" class="-mx-2 space-y-1">
-                    <li v-for="team in pinnedLists" :key="team.name">
-                      <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                        <span class="truncate">{{ team.name }}</span>
-                      </a>
-                    </li>
-                  </ul>
+            <li v-for="item in navigation" :key="item.name">
+              <RouterLink
+                :to="item.route"
+                active-class="text-white bg-gray-800"
+                class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-gray-400 hover:bg-gray-800">
+                <component :is="item.icon" class="h-6 w-6 shrink-0 text-gray-400" aria-hidden="true" />
+                {{ item.name }}
+              </RouterLink>
+              <div
+                v-if="userStore.isAuthenticated && isActiveRoutePath(item.route.name) && item.children"
+                class="divide-y divide-gray-700 space-y-4 p-2"
+              >
+                <div v-for="childItem in item.children" :key="childItem.name" class="pt-4 first:pt-0">
+                  <template v-if="childItem.children">
+                    <div class="text-xs font-semibold leading-6 text-gray-300">{{ childItem.name }}</div>
+                    <ul role="list" class="-mx-2 space-y-1">
+                      <li v-for="grandchildItem in childItem.children" :key="grandchildItem.name">
+                        <RouterLink
+                          :to="grandchildItem.route"
+                          active-class="text-white bg-gray-800"
+                          class="text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+                          <span class="truncate">{{ grandchildItem.name }}</span>
+                        </RouterLink>
+                      </li>
+                    </ul>
+                  </template>
+                  <template v-else>
+                    <ul role="list" class="-mx-2 space-y-1">
+                      <li>
+                        <RouterLink
+                          :to="childItem.route"
+                          :active-class="childItem.disableActive ? '' : 'text-white bg-gray-800'"
+                          class="text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+                          <span class="truncate">{{ childItem.name }}</span>
+                        </RouterLink>
+                      </li>
+                    </ul>
+                  </template>
                 </div>
-                <div class="pt-4">
-                  <div class="text-xs font-semibold leading-6 text-gray-300">Recent</div>
-                  <ul role="list" class="-mx-2 space-y-1">
-                    <li v-for="team in recentLists" :key="team.name">
-                      <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                        <span class="truncate">{{ team.name }}</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="pt-4">
-                  <ul role="list" class="-mx-2 space-y-1">
-                    <li>
-                      <a href="#" :class="['text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                        <span class="truncate">View All</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+
               </div>
-            </li>
-            <li>
-              <a href="#" :class="['text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                <Squares2X2Icon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Products
-              </a>
-            </li>
-            <li>
-              <a href="#" :class="['text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                <BuildingStorefrontIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Stores
-              </a>
             </li>
           </ul>
         </li>

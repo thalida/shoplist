@@ -1,22 +1,19 @@
-import { createRouter, createWebHistory, routerKey } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '../views/SigninView.vue'
 import { useUserStore } from '@/stores/user'
+import ListsView from '@/views/ListsView.vue'
 
-const HOME_ROUTE = 'HomeView'
-const SIGNIN_ROUTE = 'SigninView'
+export const SIGNIN_ROUTE = 'Signin'
+export const LISTS_ROUTE = 'List'
+export const LIST_DETAIL_ROUTE = 'ListDetail'
+export const PRODUCTS_ROUTE = 'Product'
+export const STORES_ROUTE = 'Store'
+
+export const HOME_ROUTE = LISTS_ROUTE
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: HOME_ROUTE,
-      component: HomeView,
-      meta: {
-        requiresAuth: true,
-      },
-    },
     {
       path: '/signin',
       name: SIGNIN_ROUTE,
@@ -26,13 +23,38 @@ const router = createRouter({
       },
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    }
+      alias: '/',
+      path: '/lists',
+      name: LISTS_ROUTE,
+      component: ListsView,
+      meta: {
+        requiresAuth: true,
+      },
+      children: [
+        {
+          path: ':listId',
+          name: LIST_DETAIL_ROUTE,
+          component: () => import('../views/ListDetailView.vue'),
+          props: true,
+        },
+      ],
+    },
+    {
+      path: '/products',
+      name: PRODUCTS_ROUTE,
+      meta: {
+        requiresAuth: true,
+      },
+      component: () => import('../views/ProductsView.vue')
+    },
+    {
+      path: '/stores',
+      name: STORES_ROUTE,
+      meta: {
+        requiresAuth: true,
+      },
+      component: () => import('../views/StoresView.vue')
+    },
   ]
 })
 

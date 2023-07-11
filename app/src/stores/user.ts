@@ -7,7 +7,7 @@ import {
   loginWithGoogle as loginWithGoogleReq,
   logout as logoutReq,
 } from '@/api/user';
-import router from '@/router';
+import router, { HOME_ROUTE } from '@/router';
 
 export const useUserStore = defineStore('user', () => {
   const accessToken: Ref<string | null> = useLocalStorage('shoplist/user/accessToken', null)
@@ -60,7 +60,7 @@ export const useUserStore = defineStore('user', () => {
     await getMe()
 
     isAuthenticated.value = true
-    router.push({ name: 'HomeView' })
+    router.push({ name: HOME_ROUTE })
   }
 
   async function logout() {
