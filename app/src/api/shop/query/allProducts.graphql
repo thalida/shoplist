@@ -1,9 +1,20 @@
-query AllProducts {
-  allProducts {
+query AllProducts($first: Int, $after: String, $last: Int, $before: String, $orderBy: String, $name: String, $name_Icontains: String, $category: [ID], $store: [ID], $list: [ID]) {
+  allProducts(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy, name: $name, name_Icontains: $name_Icontains, category: $category, stores: $store, lists: $list) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
     edges {
       node {
         uid
         name
+        category {
+          uid
+          name
+        }
         stores {
           edges {
             node {

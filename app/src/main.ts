@@ -18,5 +18,4 @@ app.use(vue3GoogleLogin, {
   clientId: import.meta.env.VITE_GOOGLE_OAUTH2_CLIENT_ID,
 });
 app.use(router)
-
 app.mount('#app')
