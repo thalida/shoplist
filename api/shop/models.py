@@ -3,6 +3,8 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from shop.choices import ColorChoice
+
 class ListCategory(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +37,7 @@ class ProductCategory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
+    color = models.CharField(max_length=10, choices=ColorChoice.choices, default=ColorChoice.WHITE)
 
     def __str__(self):
         return self.name

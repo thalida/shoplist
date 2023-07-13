@@ -40,12 +40,13 @@ export const useShopStore = defineStore('shop', () => {
     });
 
     if (error.value) {
-      productsAPIErrors.value = error.value;
+      productsAPIErrors.value = JSON.parse(error.value.response.body.errors[0].message);
       productsPageOrder.value = [];
       productsIsLoading.value = false;
       return;
     }
 
+    productsAPIErrors.value = null;
 
     const totalCount = data?.value?.allProducts?.totalCount || 0;
     const pageInfo = data?.value?.allProducts?.pageInfo;

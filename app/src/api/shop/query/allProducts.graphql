@@ -14,6 +14,7 @@ query AllProducts($first: Int, $after: String, $last: Int, $before: String, $ord
         category {
           uid
           name
+          color
         }
         stores {
           edges {

@@ -21,7 +21,7 @@ from shop.graphql.filters import (
 class ProductCategoryNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ProductCategory
-    fields = ['uid', 'name', 'created_at', 'updated_at']
+    fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount

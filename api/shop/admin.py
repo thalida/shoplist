@@ -34,7 +34,8 @@ class ProductCategoryAdmin(ModelAdmin):
     """
     ProductCategory admin
     """
-    pass
+    list_display = ('name', 'color')
+    list_editable = ('color',)
 
 
 @admin.register(ProductUnit)
