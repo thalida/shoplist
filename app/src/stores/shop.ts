@@ -6,6 +6,7 @@ import {
 } from "@/api/gql/graphql";
 import { humanizeGraphQLResponse } from '@/utils/graphql';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/graphql';
+import { cloneDeep } from 'lodash';
 
 export const useShopStore = defineStore('shop', () => {
   const products: Ref<Record<string, any>> = ref({});
@@ -51,8 +52,8 @@ export const useShopStore = defineStore('shop', () => {
     const productsRes = humanizeGraphQLResponse(data?.value);
 
     productsPageInfo.value = {
-      hasNextPage: pageInfo?.hasNextPage || false,
       hasPreviousPage: pageInfo?.hasPreviousPage || false,
+      hasNextPage: pageInfo?.hasNextPage || false,
       startCursor: pageInfo?.startCursor || "",
       endCursor: pageInfo?.endCursor || "",
       totalCount,

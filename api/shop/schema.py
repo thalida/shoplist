@@ -9,7 +9,6 @@ from shop.graphql.nodes import (
     ListNode,
 )
 
-
 class ShopQuery(graphene.ObjectType):
     product = graphene.relay.Node.Field(ProductNode)
     all_products = DjangoFilterConnectionField(ProductNode)
