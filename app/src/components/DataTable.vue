@@ -3,6 +3,7 @@ import { computed, type PropType } from 'vue';
 import { ChevronDownIcon, ListFilterIcon } from 'lucide-vue-next';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
+import { keyBy } from 'lodash';
 
 export interface IDataTableHeader {
   key: string,
@@ -35,9 +36,9 @@ const props = defineProps({
     default: () => ({}),
   },
   orderBy: {
-    type: Object as PropType<IOrderBy>,
+    type: Array as PropType<IOrderBy[]>,
     required: false,
-    default: () => ({}),
+    default: () => ([]),
   },
 })
 
@@ -51,6 +52,9 @@ const numHeaders = computed(() => props.headers.length)
 const numItems = computed(() => props.items.length)
 const headerItemWidth = computed(() => {
   return `${100 / numHeaders.value}%`
+})
+const orderByField = computed(() => {
+  return keyBy(props.orderBy, 'field')
 })
 </script>
 
@@ -76,9 +80,9 @@ const headerItemWidth = computed(() => {
                   v-if="header.isSortable"
                   class="flex-none rounded text-gray-400 group-hover:visible group-focus:visible"
                   :class="{
-                    invisible: typeof orderBy[header.key] === 'undefined' || orderBy[header.key] === null,
-                    'rotate-0': orderBy[header.key] === true,
-                    'rotate-180': orderBy[header.key] === false,
+                    invisible: typeof orderByField[header.key] === 'undefined' || orderByField[header.key]?.value === null,
+                    'rotate-0': orderByField[header.key]?.value === true,
+                    'rotate-180': orderByField[header.key]?.value === false,
                   }"
                 >
                   <ChevronDownIcon class="h-5 w-5" aria-hidden="true" />
@@ -137,7 +141,7 @@ const headerItemWidth = computed(() => {
         </tr>
       </tbody>
     </table>
-    <nav v-if="pageInfo" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6" aria-label="Pagination">
+    <nav v-if="pageInfo" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
       <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
         <span class="font-medium">{{ pageInfo.totalCount }}</span> results
       </p>

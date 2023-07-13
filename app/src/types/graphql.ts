@@ -10,7 +10,8 @@ export interface IFilterBy {
 }
 
 export interface IOrderBy {
-  [key: string]: boolean | null,
+  field: string,
+  value: boolean,
 }
 
 export interface IError extends CombinedError {}

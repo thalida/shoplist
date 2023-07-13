@@ -6,7 +6,7 @@ import {
 } from "@/api/gql/graphql";
 import { humanizeGraphQLResponse } from '@/utils/graphql';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/graphql';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, findIndex } from 'lodash';
 
 export const useShopStore = defineStore('shop', () => {
   const products: Ref<Record<string, any>> = ref({});
@@ -19,7 +19,7 @@ export const useShopStore = defineStore('shop', () => {
     endCursor: "",
     totalCount: 0,
   });
-  const productsOrderBy: Ref<IOrderBy> = ref({});
+  const productsOrderBy: Ref<IOrderBy[]> = ref([]);
   const productsFilterBy: Ref<IFilterBy> = ref({});
   const productsPageOrder: Ref<string[]> = ref([]);
   const productsPageItems = computed(() => {
@@ -75,30 +75,35 @@ export const useShopStore = defineStore('shop', () => {
     productsIsLoading.value = false;
   }
 
-  function formatOrderByArgs(orderBy: IOrderBy | null | undefined) {
+  function formatOrderByArgs(orderBy: IOrderBy[] | null | undefined, keyMap: Record<string, string> = {}) {
     if (typeof orderBy === "undefined" || orderBy === null) {
       return "";
     }
 
-    const orderByStr = Object.keys(orderBy).map((key) => {
-      const value = orderBy[key];
-      if (value === null) {
-        return
-      }
-      return `${value ? "" : "-"}${key}`;
-    }).join(", ");
+    const orderByStr = orderBy.map((order) => {
+      const queryKey = keyMap[order.field] || order.field
+      return `${order.value ? "" : "-"}${queryKey}`;
+    }).join(",");
 
     return orderByStr;
   }
 
-  function toggleOrderByField(orderBy: IOrderBy, field: string) {
-    const hasKey = Object.keys(orderBy).includes(field);
+  function setProductsOrderBy(orderBy: IOrderBy[]) {
+    productsOrderBy.value = cloneDeep(orderBy);
+  }
 
-    if (hasKey) {
-      orderBy[field] = !orderBy[field];
-    } else {
-      orderBy[field] = true;
+  function toggleOrderByField(orderBy: IOrderBy[], field: string) {
+    const index = findIndex(orderBy, { field })
+    const currOrder = orderBy[index]
+    const newOrder = {
+      field,
+      value: currOrder ? !currOrder.value : true
     }
+
+    orderBy = orderBy.filter((order) => order.field !== field)
+    orderBy.unshift(newOrder)
+
+    return orderBy
   }
 
   return {
@@ -110,6 +115,8 @@ export const useShopStore = defineStore('shop', () => {
     productsOrderBy,
     productsFilterBy,
     getProducts,
+
+    setProductsOrderBy,
 
     formatOrderByArgs,
     toggleOrderByField,

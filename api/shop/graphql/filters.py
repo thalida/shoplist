@@ -23,7 +23,7 @@ class ProductFilter(FilterSet):
     }
 
   category = filters.ModelMultipleChoiceFilter(
-      field_name='category__uuid',
+      field_name='category__uid',
       to_field_name='uid',
       queryset=ProductCategory.objects.all(),
   )
@@ -41,5 +41,5 @@ class ProductFilter(FilterSet):
   )
 
   order_by = OrderingFilter(
-    fields=['name', 'category']
+    fields=['name', 'category__name']
   )

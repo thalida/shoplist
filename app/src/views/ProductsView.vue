@@ -22,7 +22,7 @@ const headers: IDataTableHeader[] = [
 const pageSize = 50;
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
-  const orderByStr = shopStore.formatOrderByArgs(orderBy.value);
+  const orderByStr = shopStore.formatOrderByArgs(orderBy.value, { category: 'category__name' });
 
   shopStore.getProducts({
     first,
@@ -52,7 +52,8 @@ function handlePrevPage(){
 }
 
 function handleUpdateOrderBy(header: IDataTableHeader) {
-  shopStore.toggleOrderByField(orderBy.value, header.key);
+  const newOrderBy = shopStore.toggleOrderByField(orderBy.value, header.key);
+  shopStore.setProductsOrderBy(newOrderBy);
   loadData({
     first: pageSize,
   });
