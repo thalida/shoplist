@@ -100,7 +100,7 @@ function handleSearchQueryChange(e: Event) {
 <template>
   <div class="relative overflow-auto">
     <div class="flex flex-row justify-between my-4">
-      <div class="flex flex-row items-center space-x-4">
+      <div class="flex flex-row items-center space-x-2 lg:space-x-4">
         <button
           v-if="showFilterButton"
           @click="isFilterPanelOpen = true"
@@ -116,13 +116,13 @@ function handleSearchQueryChange(e: Event) {
         <div v-if="showSelectedFilters">
         </div>
       </div>
-      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 h-12">
+      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </div>
         <input
           type="text"
-          class="block w-64 rounded-lg border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          class="block w-60 rounded-lg border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           :placeholder="searchPlaceholder"
           :value="searchQuery"
           @input="handleSearchQueryChange"

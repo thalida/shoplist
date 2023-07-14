@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { XCircleIcon, PlusIcon, ChevronsUpDownIcon, CheckIcon } from 'lucide-vue-next';
 import { debounce } from 'lodash';
   import {
@@ -31,8 +31,8 @@ const headers: IDataTableHeader[] = [
 ];
 const pageSize = 50;
 
-const filterCategoriesSelected = ref([]);
 const filterCategoriesQuery = ref('')
+const filterCategoriesSelected = ref([]);
 const filteredCategories = computed(() =>
   filterCategoriesQuery.value === ''
     ? shopStore.productCategoryOrder
@@ -42,7 +42,6 @@ const filteredCategories = computed(() =>
           .includes(filterCategoriesQuery.value.toLowerCase())
       })
 )
-
 watch(() => filterCategoriesSelected.value, () => {
   shopStore.setProductsFilterBy({
     ...filterBy.value,
@@ -168,7 +167,7 @@ function boldSearchQuery(query: string | null, text: string) {
       :showSelectedFilters="true"
       :showSearch="true"
       :searchQuery="searchQuery"
-      :searchPlaceholder="'Search product by name'"
+      :searchPlaceholder="'Search by product name'"
       @nextPage="handleNextPage"
       @prevPage="handlePrevPage"
       @updateOrderBy="handleUpdateOrderBy"
