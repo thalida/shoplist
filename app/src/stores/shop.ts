@@ -2,7 +2,9 @@ import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useQuery } from "@/api";
 import {
-  AllProductsDocument, type QueryAllProductsArgs,
+  AllProductsDocument,
+  type QueryAllProductsArgs,
+  AllProductCategoriesDocument,
 } from "@/api/gql/graphql";
 import { humanizeGraphQLResponse } from '@/utils/graphql';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/graphql';
@@ -22,6 +24,7 @@ export const useShopStore = defineStore('shop', () => {
   const productsOrderBy: Ref<IOrderBy[]> = ref([]);
   const productsFilterBy: Ref<IFilterBy> = ref({
     name_Icontains: null,
+    categories: [],
   });
   const productsPageOrder: Ref<string[]> = ref([]);
   const productsPageItems = computed(() => {
@@ -31,6 +34,8 @@ export const useShopStore = defineStore('shop', () => {
     }
     return activePage;
   });
+  const productCategories: Ref<Record<string, any>> = ref({});
+  const productCategoryOrder: Ref<string[]> = ref([]);
 
   async function getProducts(args?: QueryAllProductsArgs) {
     productsIsLoading.value = true;
@@ -77,6 +82,29 @@ export const useShopStore = defineStore('shop', () => {
     productsPageOrder.value = newPageOrder;
     productsIsLoading.value = false;
   }
+
+  async function getProductCategories() {
+    const { data } = await useQuery({
+      query: AllProductCategoriesDocument,
+      variables: {
+        orderBy: 'name',
+      },
+    });
+
+    const res = humanizeGraphQLResponse(data?.value);
+
+    if (!res) {
+      return;
+    }
+
+    productCategories.value = {};
+    productCategoryOrder.value = [];
+    for (const category of res.allProductCategories) {
+      productCategories.value[category.uid] = category;
+      productCategoryOrder.value.push(category.uid);
+    }
+  }
+
 
   function formatOrderByArgs(orderBy: IOrderBy[] | null | undefined, keyMap: Record<string, string> = {}) {
     if (typeof orderBy === "undefined" || orderBy === null) {
@@ -135,6 +163,10 @@ export const useShopStore = defineStore('shop', () => {
     productsOrderBy,
     productsFilterBy,
     getProducts,
+
+    productCategories,
+    productCategoryOrder,
+    getProductCategories,
 
     setProductsOrderBy,
     setProductsFilterBy,

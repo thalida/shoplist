@@ -22,8 +22,8 @@ class ProductFilter(FilterSet):
       'lists': ['exact'],
     }
 
-  category = filters.ModelMultipleChoiceFilter(
-      field_name='category__uid',
+  categories = filters.ModelMultipleChoiceFilter(
+      field_name='categories__uid',
       to_field_name='uid',
       queryset=ProductCategory.objects.all(),
   )
@@ -41,5 +41,19 @@ class ProductFilter(FilterSet):
   )
 
   order_by = OrderingFilter(
-    fields=['name', 'category__name']
+    fields=['name']
+  )
+
+
+class ProductCategoryFilter(FilterSet):
+  class Meta:
+    model = ProductCategory
+    fields = {
+      'uid': ['exact'],
+      'name': ['exact', 'icontains'],
+      'color': ['exact'],
+    }
+
+  order_by = OrderingFilter(
+    fields=['name', 'color']
   )

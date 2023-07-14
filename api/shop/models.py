@@ -64,7 +64,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.ForeignKey('ProductCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    categories = models.ManyToManyField('ProductCategory', blank=True, related_name='products')
 
     def __str__(self):
         return self.name

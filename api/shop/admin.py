@@ -51,7 +51,25 @@ class ProductAdmin(ModelAdmin):
     """
     Product admin
     """
-    pass
+    list_display = ('name', 'categories_list', 'stores_list', 'lists_list')
+
+    def categories_list(self, obj):
+        """
+        Return categories list
+        """
+        return ', '.join([category.name for category in obj.categories.all()])
+
+    def stores_list(self, obj):
+        """
+        Return stores list
+        """
+        return ', '.join([store.name for store in obj.stores.all()])
+
+    def lists_list(self, obj):
+        """
+        Return lists list
+        """
+        return ', '.join([list_.name for list_ in obj.lists.all()])
 
 
 class StoreProductInline(TabularInline):

@@ -16,12 +16,14 @@ from shop.models import (
 )
 from shop.graphql.filters import (
   ProductFilter,
+  ProductCategoryFilter,
 )
 
 class ProductCategoryNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ProductCategory
     fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
+    filterset_class = ProductCategoryFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount
@@ -56,7 +58,7 @@ class ProductUnitNode(IsAuthenticated, DjangoObjectType):
 class ProductNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = Product
-    fields = ['uid', 'name', 'category', 'stores', 'lists', 'created_at', 'updated_at']
+    fields = ['uid', 'name', 'categories', 'stores', 'lists', 'created_at', 'updated_at']
     filterset_class = ProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False

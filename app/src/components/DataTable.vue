@@ -100,7 +100,7 @@ function handleSearchQueryChange(e: Event) {
 <template>
   <div class="relative overflow-auto">
     <div class="flex flex-row justify-between my-4">
-      <div>
+      <div class="flex flex-row items-center space-x-4">
         <button
           v-if="showFilterButton"
           @click="isFilterPanelOpen = true"
@@ -113,7 +113,8 @@ function handleSearchQueryChange(e: Event) {
           />
           <span>{{ filterButtonLabel }}</span>
         </button>
-        <div v-if="showSelectedFilters">selected filters:</div>
+        <div v-if="showSelectedFilters">
+        </div>
       </div>
       <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 h-12">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -220,7 +221,7 @@ function handleSearchQueryChange(e: Event) {
 
         <div class="fixed inset-0 z-40 flex">
           <TransitionChild as="template" enter="transition ease-in-out duration-300 transform" enter-from="translate-x-full" enter-to="translate-x-0" leave="transition ease-in-out duration-300 transform" leave-from="translate-x-0" leave-to="translate-x-full">
-            <DialogPanel class="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl">
+            <DialogPanel class="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl space-y-4">
               <div class="sticky top-0 flex items-center justify-between p-4 bg-white bg-opacity-50 backdrop-blur-sm">
                 <h2 class="text-lg font-medium text-gray-900">Filters</h2>
                 <button type="button" class="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400" @click="isFilterPanelOpen = false">
@@ -230,22 +231,9 @@ function handleSearchQueryChange(e: Event) {
               </div>
 
               <!-- Filters -->
-              <form class="mt-4">
+              <form class="p-4">
                 <template v-for="header in headers" :key="header.key">
-                  <Disclosure as="div" v-if="header.isFilterable" class="px-4 py-6" v-slot="{ open }">
-                    <h3 class="-mx-2 -my-3 flow-root">
-                      <DisclosureButton class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                        <span class="font-medium text-gray-900">{{ header.label }}</span>
-                        <span class="ml-6 flex items-center">
-                          <PlusIcon v-if="!open" class="h-5 w-5" aria-hidden="true" />
-                          <MinusIcon v-else class="h-5 w-5" aria-hidden="true" />
-                        </span>
-                      </DisclosureButton>
-                    </h3>
-                    <DisclosurePanel class="pt-6">
-                      <slot :name="`filter-panel-${header.key}`" :header="header"></slot>
-                    </DisclosurePanel>
-                  </Disclosure>
+                  <slot :name="`filter-panel-${header.key}`" :header="header"></slot>
                 </template>
               </form>
             </DialogPanel>

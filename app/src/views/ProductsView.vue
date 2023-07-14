@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { XCircleIcon, PlusIcon } from 'lucide-vue-next';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
+import { XCircleIcon, PlusIcon, ChevronsUpDownIcon, CheckIcon } from 'lucide-vue-next';
+import { debounce } from 'lodash';
+  import {
+    Combobox,
+    ComboboxButton,
+    ComboboxInput,
+    ComboboxOptions,
+    ComboboxOption,
+  } from '@headlessui/vue'
 import AppMain from '@/components/AppMain.vue';
 import { useShopStore } from '@/stores/shop';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
-import { debounce } from 'lodash';
+import ColorBadge from '@/components/ColorBadge.vue';
 
 const shopStore = useShopStore();
 const products = computed(() => shopStore.productsPageItems);
@@ -17,11 +25,33 @@ const searchQuery = ref('');
 
 const headers: IDataTableHeader[] = [
 { label: "Name", key: "name", isSortable: true, isFilterable: false },
-{ label: "Category", key: "category", isSortable: true, isFilterable: true },
+{ label: "Categories", key: "categories", isSortable: false, isFilterable: true },
 { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
 { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
 ];
 const pageSize = 50;
+
+const filterCategoriesSelected = ref([]);
+const filterCategoriesQuery = ref('')
+const filteredCategories = computed(() =>
+  filterCategoriesQuery.value === ''
+    ? shopStore.productCategoryOrder
+    : shopStore.productCategoryOrder.filter((uid) => {
+        return shopStore.productCategories[uid].name
+          .toLowerCase()
+          .includes(filterCategoriesQuery.value.toLowerCase())
+      })
+)
+
+watch(() => filterCategoriesSelected.value, () => {
+  shopStore.setProductsFilterBy({
+    ...filterBy.value,
+    categories: filterCategoriesSelected.value,
+  });
+  loadData({
+    first: pageSize,
+  });
+});
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
   const orderByStr = shopStore.formatOrderByArgs(orderBy.value, { category: 'category__name' });
@@ -72,10 +102,20 @@ function handleUpdateSearchQuery(newSearchQuery: string) {
 }
 
 onMounted(async () => {
+  await shopStore.getProductCategories();
   loadData({
     first: pageSize,
   })
 });
+
+function boldSearchQuery(query: string | null, text: string) {
+  if (!query) {
+    return text;
+  }
+
+  const regex = new RegExp(query, 'gi');
+  return text.replace(regex, (match) => `<b>${match}</b>`);
+}
 </script>
 
 <template>
@@ -134,29 +174,65 @@ onMounted(async () => {
       @updateOrderBy="handleUpdateOrderBy"
       @updateSearchQuery="handleUpdateSearchQuery"
     >
-      <template #item-category="{ item }">
-        <div v-if="item.category">
-          <span
-            class="inline-flex items-center rounded-md ring-1 ring-inset px-2 py-1 text-xs font-medium "
-            :class="{
-              'bg-white text-gray-600 ring-gray-300': item.category.color === 'white',
-              'bg-gray-50 text-gray-600 ring-gray-500/10': item.category.color === 'gray',
-              'bg-orange-800 text-orange-200 ring-orange-900': item.category.color === 'brown',
-              'bg-slate-900 text-white ring-black/10': item.category.color === 'black',
-              'bg-red-50 text-red-700 ring-red-600/10': item.category.color === 'red',
-              'bg-yellow-50 text-yellow-800 ring-yellow-600/20': item.category.color === 'yellow',
-              'bg-green-50 text-green-700 ring-green-600/20': item.category.color === 'green',
-              'bg-blue-50 text-blue-700 ring-blue-700/10': item.category.color === 'blue',
-              'bg-purple-50 text-purple-700 ring-purple-700/10': item.category.color === 'purple',
-              'bg-pink-50 text-pink-700 ring-pink-700/10': item.category.color === 'pink',
-            }"
-          >
-            {{ item.category.name }}
-          </span>
+      <template #item-categories="{ item }">
+        <div class="flex flex-row flex-wrap gap-1">
+          <ColorBadge
+            v-for="category in item.categories"
+            :key="category.uid"
+            :label="category.name"
+            :color="category.color"
+          />
         </div>
       </template>
-      <template #filter-panel-category>
-        Category
+      <template #filter-panel-categories="{ header }">
+        <h3>
+          <span class="font-medium text-gray-900">{{ header.label }}</span>
+        </h3>
+
+        <div class="mt-4 space-y-4">
+          <div v-if="filterCategoriesSelected.length > 0" class="flex flex-row flex-wrap gap-1">
+            <ColorBadge
+              v-for="categoryUid in filterCategoriesSelected" :key="categoryUid"
+              :label="shopStore.productCategories[categoryUid].name"
+              :color="shopStore.productCategories[categoryUid].color" />
+          </div>
+
+          <Combobox as="div" v-model="filterCategoriesSelected" multiple>
+            <div class="relative mt-2">
+              <ComboboxInput
+                class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                @change="filterCategoriesQuery = $event.target.value"
+                :displayValue="() => filterCategoriesQuery"
+                :placeholder="'Search for a category'"
+              />
+
+              <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                <ChevronsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+              </ComboboxButton>
+
+              <ComboboxOptions v-if="filteredCategories.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <ComboboxOption
+                  as="template"
+                  v-for="categoryUid in filteredCategories"
+                  :key="categoryUid"
+                  :value="categoryUid"
+                  v-slot="{ active, selected }"
+                >
+                  <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
+                    <span
+                      :class="['block truncate', selected && 'font-semibold']"
+                      v-html="boldSearchQuery(filterCategoriesQuery, shopStore.productCategories[categoryUid].name)"
+                    />
+
+                    <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
+                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                    </span>
+                  </li>
+                </ComboboxOption>
+              </ComboboxOptions>
+            </div>
+          </Combobox>
+        </div>
       </template>
     </DataTable>
   </AppMain>

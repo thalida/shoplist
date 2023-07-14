@@ -1,0 +1,12 @@
+query AllProductCategories($uid: UUID, $name: String, $name_Icontains: String, $color: String, $orderBy: String) {
+  allProductCategories(uid: $uid, name: $name, name_Icontains: $name_Icontains, color: $color, orderBy: $orderBy) {
+    totalCount
+    edges {
+      node {
+        uid
+        name
+        color
+      }
+    }
+  }
+}
