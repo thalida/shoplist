@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, type PropType } from 'vue';
-import { ChevronDownIcon, ListFilterIcon, XIcon, PlusIcon, MinusIcon } from 'lucide-vue-next';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { Dialog, DialogTitle, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ListFilterIcon, XIcon, PlusIcon, MinusIcon } from 'lucide-vue-next';
+import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
 import { keyBy } from 'lodash';
@@ -85,14 +84,11 @@ const isFilterPanelOpen = ref(false)
                 </div>
                 <span
                   v-if="header.isSortable"
-                  class="flex-none rounded text-gray-400 group-hover:visible group-focus:visible"
-                  :class="{
-                    invisible: typeof orderByField[header.key] === 'undefined' || orderByField[header.key]?.value === null,
-                    'rotate-0': orderByField[header.key]?.value === true,
-                    'rotate-180': orderByField[header.key]?.value === false,
-                  }"
+                  class="flex-none rounded text-gray-400"
                 >
-                  <ChevronDownIcon class="h-5 w-5" aria-hidden="true" />
+                <ChevronDownIcon v-if="orderByField[header.key]?.value === true" class="h-5 w-5" aria-hidden="true" />
+                <ChevronUpIcon v-else-if="orderByField[header.key]?.value === false" class="h-5 w-5" aria-hidden="true" />
+                <ChevronsUpDownIcon v-else class="h-5 w-5" aria-hidden="true" />
                 </span>
               </component>
               <button v-if="header.isFilterable" @click="isFilterPanelOpen = true">

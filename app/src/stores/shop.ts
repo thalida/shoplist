@@ -83,6 +83,11 @@ export const useShopStore = defineStore('shop', () => {
 
     const orderByStr = orderBy.map((order) => {
       const queryKey = keyMap[order.field] || order.field
+
+      if (order.value === null) {
+        return '';
+      }
+
       return `${order.value ? "" : "-"}${queryKey}`;
     }).join(",");
 
@@ -96,9 +101,17 @@ export const useShopStore = defineStore('shop', () => {
   function toggleOrderByField(orderBy: IOrderBy[], field: string) {
     const index = findIndex(orderBy, { field })
     const currOrder = orderBy[index]
-    const newOrder = {
+    const newOrder: IOrderBy = {
       field,
-      value: currOrder ? !currOrder.value : true
+      value: null
+    }
+
+    if (typeof currOrder === 'undefined' || currOrder.value === null) {
+      newOrder.value = true
+    } else if (currOrder.value === true) {
+      newOrder.value = false
+    } else if (currOrder.value === false) {
+      newOrder.value = null
     }
 
     orderBy = orderBy.filter((order) => order.field !== field)

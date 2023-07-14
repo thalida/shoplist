@@ -11,7 +11,7 @@ export interface IFilterBy {
 
 export interface IOrderBy {
   field: string,
-  value: boolean,
+  value: boolean | null,
 }
 
 export interface IError extends CombinedError {}
