@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { XCircleIcon, ArrowUpWideNarrow } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
+import { XCircleIcon, PlusIcon } from 'lucide-vue-next';
 import AppMain from '@/components/AppMain.vue';
 import { useShopStore } from '@/stores/shop';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
+import { debounce } from 'lodash';
 
 const shopStore = useShopStore();
 const products = computed(() => shopStore.productsPageItems);
@@ -12,12 +13,13 @@ const apiErrors = computed(() => shopStore.productsAPIErrors);
 const pageInfo = computed(() => shopStore.productsPageInfo);
 const orderBy = computed(() => shopStore.productsOrderBy);
 const filterBy = computed(() => shopStore.productsFilterBy);
+const searchQuery = ref('');
 
 const headers: IDataTableHeader[] = [
-  { label: "Name", key: "name", isSortable: true, isFilterable: true },
-  { label: "Category", key: "category", isSortable: true, isFilterable: true },
-  { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
-  { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
+{ label: "Name", key: "name", isSortable: true, isFilterable: false },
+{ label: "Category", key: "category", isSortable: true, isFilterable: true },
+{ label: "Lists", key: "lists", isSortable: false, isFilterable: true },
+{ label: "Stores", key: "stores", isSortable: false, isFilterable: true },
 ];
 const pageSize = 50;
 
@@ -30,12 +32,11 @@ async function loadData({ first, last, after, before }: { first?: number, last?:
     after,
     before,
     orderBy: orderByStr,
-    name_Icontains: filterBy.value.name,
-    category: filterBy.value.category,
-    stores: filterBy.value.stores,
-    lists: filterBy.value.lists,
+    ...filterBy.value,
   });
 }
+
+const debouncedLoadData = debounce(loadData, 300);
 
 function handleNextPage(){
   loadData({
@@ -54,7 +55,18 @@ function handlePrevPage(){
 function handleUpdateOrderBy(header: IDataTableHeader) {
   const newOrderBy = shopStore.toggleOrderByField(orderBy.value, header.key);
   shopStore.setProductsOrderBy(newOrderBy);
-  loadData({
+  debouncedLoadData({
+    first: pageSize,
+  });
+}
+
+function handleUpdateSearchQuery(newSearchQuery: string) {
+  searchQuery.value = newSearchQuery;
+  shopStore.setProductsFilterBy({
+    ...filterBy.value,
+    name_Icontains: searchQuery.value,
+  });
+  debouncedLoadData({
     first: pageSize,
   });
 }
@@ -68,16 +80,18 @@ onMounted(async () => {
 
 <template>
   <AppMain>
-    Products View
+    <div class="flex flex-row items-center justify-between">
+      <h1 class="text-base font-semibold leading-6 text-gray-900">All Products</h1>
 
-    <div class="sm:flex sm:items-center">
-      <div class="sm:flex-auto">
-        <h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>
-        <p class="mt-2 text-sm text-gray-700">A list of all the users in your account including their name, title, email and role.</p>
-      </div>
-      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-        <button type="button" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Add user</button>
-      </div>
+      <button
+        type="button"
+        class="flex flex-row space-x-2 items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >
+        <PlusIcon
+          class="h-4 w-4"
+          aria-hidden="true" />
+        <span>Add Product</span>
+      </button>
     </div>
 
     <div v-if="apiErrors" class="rounded-md bg-red-50 p-4">
@@ -109,9 +123,16 @@ onMounted(async () => {
       :items="products"
       :pageInfo="pageInfo"
       :orderBy="orderBy"
+      :filterBy="filterBy"
+      :showFilterButton="true"
+      :showSelectedFilters="true"
+      :showSearch="true"
+      :searchQuery="searchQuery"
+      :searchPlaceholder="'Search product by name'"
       @nextPage="handleNextPage"
       @prevPage="handlePrevPage"
       @updateOrderBy="handleUpdateOrderBy"
+      @updateSearchQuery="handleUpdateSearchQuery"
     >
       <template #item-category="{ item }">
         <div v-if="item.category">
@@ -134,22 +155,8 @@ onMounted(async () => {
           </span>
         </div>
       </template>
-      <template #filter-panel-name>
-        <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Search candidates</label>
-          <div class="mt-2 flex rounded-md shadow-sm">
-            <div class="relative flex flex-grow items-stretch focus-within:z-10">
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <UsersIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-              </div>
-              <input type="email" name="email" id="email" class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="John Smith" />
-            </div>
-            <button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-              <ArrowUpWideNarrow class="-ml-0.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-              Sort
-            </button>
-          </div>
-        </div>
+      <template #filter-panel-category>
+        Category
       </template>
     </DataTable>
   </AppMain>

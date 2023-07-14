@@ -20,7 +20,9 @@ export const useShopStore = defineStore('shop', () => {
     totalCount: 0,
   });
   const productsOrderBy: Ref<IOrderBy[]> = ref([]);
-  const productsFilterBy: Ref<IFilterBy> = ref({});
+  const productsFilterBy: Ref<IFilterBy> = ref({
+    name_Icontains: null,
+  });
   const productsPageOrder: Ref<string[]> = ref([]);
   const productsPageItems = computed(() => {
     const activePage: any[] = [];
@@ -120,6 +122,10 @@ export const useShopStore = defineStore('shop', () => {
     return orderBy
   }
 
+  function setProductsFilterBy(filterBy: IFilterBy) {
+    productsFilterBy.value = cloneDeep(filterBy);
+  }
+
   return {
     products,
     productsIsLoading,
@@ -131,6 +137,7 @@ export const useShopStore = defineStore('shop', () => {
     getProducts,
 
     setProductsOrderBy,
+    setProductsFilterBy,
 
     formatOrderByArgs,
     toggleOrderByField,

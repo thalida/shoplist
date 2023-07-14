@@ -5,6 +5,7 @@ import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessu
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
 import { keyBy } from 'lodash';
+import { SearchIcon } from 'lucide-vue-next';
 
 export interface IDataTableHeader {
   key: string,
@@ -31,15 +32,45 @@ const props = defineProps({
     type: Object as PropType<IPageInfo>,
     required: false,
   },
+  orderBy: {
+    type: Array as PropType<IOrderBy[]>,
+    required: false,
+    default: () => ([]),
+  },
   filterBy: {
     type: Object as PropType<IFilterBy>,
     required: false,
     default: () => ({}),
   },
-  orderBy: {
-    type: Array as PropType<IOrderBy[]>,
+  showFilterButton: {
+    type: Boolean,
     required: false,
-    default: () => ([]),
+    default: true,
+  },
+  filterButtonLabel: {
+    type: String,
+    required: false,
+    default: 'Filter',
+  },
+  showSelectedFilters: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  searchQuery: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  showSearch: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  searchPlaceholder: {
+    type: String,
+    required: false,
+    default: 'Search items',
   },
 })
 
@@ -47,6 +78,7 @@ const emit = defineEmits<{
   (e: 'nextPage', pageInfo: IPageInfo): void
   (e: 'prevPage', pageInfo: IPageInfo): void
   (e: 'updateOrderBy', header: IDataTableHeader): void
+  (e: 'updateSearchQuery', query: string): void
 }>()
 
 const numHeaders = computed(() => props.headers.length)
@@ -58,10 +90,44 @@ const orderByField = computed(() => {
   return keyBy(props.orderBy, 'field')
 })
 const isFilterPanelOpen = ref(false)
+
+function handleSearchQueryChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  emit('updateSearchQuery', target.value);
+}
 </script>
 
 <template>
   <div class="relative overflow-auto">
+    <div class="flex flex-row justify-between my-4">
+      <div>
+        <button
+          v-if="showFilterButton"
+          @click="isFilterPanelOpen = true"
+          type="button"
+          class="flex flex-row space-x-2 items-center justify-center rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-indigo-600 border border-indigo-300 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          <ListFilterIcon
+            class="h-4 w-4"
+            aria-hidden="true"
+          />
+          <span>{{ filterButtonLabel }}</span>
+        </button>
+        <div v-if="showSelectedFilters">selected filters:</div>
+      </div>
+      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 h-12">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <SearchIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </div>
+        <input
+          type="text"
+          class="block w-64 rounded-lg border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          :placeholder="searchPlaceholder"
+          :value="searchQuery"
+          @input="handleSearchQueryChange"
+        />
+      </div>
+    </div>
     <table class="min-w-full border-separate border-spacing-0">
       <thead>
         <tr>
@@ -91,15 +157,6 @@ const isFilterPanelOpen = ref(false)
                 <ChevronsUpDownIcon v-else class="h-5 w-5" aria-hidden="true" />
                 </span>
               </component>
-              <button v-if="header.isFilterable" @click="isFilterPanelOpen = true">
-                <ListFilterIcon
-                  class="h-4 w-4"
-                  :class="{
-                    'bg-red': typeof filterBy[header.key] !== 'undefined' && filterBy[header.key] !== null,
-                  }"
-                  aria-hidden="true"
-                />
-              </button>
             </div>
           </th>
         </tr>
