@@ -116,13 +116,13 @@ function handleSearchQueryChange(e: Event) {
         <div v-if="showSelectedFilters">
         </div>
       </div>
-      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10">
+      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 w-1/3 min-w-60">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </div>
         <input
           type="text"
-          class="block w-60 rounded-lg border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          class="block w-full rounded-lg border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           :placeholder="searchPlaceholder"
           :value="searchQuery"
           @input="handleSearchQueryChange"
