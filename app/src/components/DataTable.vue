@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, type PropType } from 'vue';
-import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ListFilterIcon, XIcon, PlusIcon, MinusIcon } from 'lucide-vue-next';
+import { computed, ref, type PropType, watchEffect, watch } from 'vue';
+import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ListFilterIcon, XIcon } from 'lucide-vue-next';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
-import { keyBy } from 'lodash';
+import { countBy, keyBy } from 'lodash';
 import { SearchIcon } from 'lucide-vue-next';
 
 export interface IDataTableHeader {
@@ -40,22 +40,7 @@ const props = defineProps({
   filterBy: {
     type: Object as PropType<IFilterBy>,
     required: false,
-    default: () => ({}),
-  },
-  showFilterButton: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  filterButtonLabel: {
-    type: String,
-    required: false,
-    default: 'Filter',
-  },
-  showSelectedFilters: {
-    type: Boolean,
-    required: false,
-    default: true,
+    default: null,
   },
   searchQuery: {
     type: String,
@@ -90,6 +75,11 @@ const orderByField = computed(() => {
   return keyBy(props.orderBy, 'field')
 })
 const isFilterPanelOpen = ref(false)
+const numSelectedFilters = computed(() => {
+  return countBy(props.filterBy, (v) => {
+    return typeof v !== 'undefined' && v !== null && v.length > 0
+  }).true
+})
 
 function handleSearchQueryChange(e: Event) {
   const target = e.target as HTMLInputElement;
@@ -100,21 +90,22 @@ function handleSearchQueryChange(e: Event) {
 <template>
   <div class="relative">
     <div class="flex flex-row justify-between my-4">
-      <div class="flex flex-row items-center space-x-2 lg:space-x-4">
-        <button
-          v-if="showFilterButton"
-          @click="isFilterPanelOpen = true"
-          type="button"
-          class="flex flex-row space-x-2 items-center justify-center rounded-md bg-white px-3 py-2 text-center text-sm font-semibold text-indigo-600 border border-indigo-300 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          <ListFilterIcon
-            class="h-4 w-4"
-            aria-hidden="true"
-          />
-          <span>{{ filterButtonLabel }}</span>
-        </button>
-        <div v-if="showSelectedFilters">
-        </div>
+      <div class="flex flex-row items-center space-x-2">
+        <template v-for="header in headers" :key="header.key">
+          <Popover v-if="header.isFilterable" class="relative inline-block text-left">
+            <PopoverButton class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+              {{ header.label }}
+              <slot :name="`filter-status-${header.key}`" :header="header"></slot>
+              <ChevronDownIcon class="ui-open:rotate-180 ui-open:transform -mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+            </PopoverButton>
+
+            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+              <PopoverPanel class="absolute left-0 z-10 mt-2 w-56 max-h-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <slot :name="`filter-panel-${header.key}`" :header="header"></slot>
+              </PopoverPanel>
+            </transition>
+          </Popover>
+        </template>
       </div>
       <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 w-1/3 min-w-60">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -129,7 +120,11 @@ function handleSearchQueryChange(e: Event) {
         />
       </div>
     </div>
-    <div class="overflow-auto border border-gray-300 rounded-t-lg">
+    <div
+      class="overflow-auto border border-gray-300 rounded-t-lg"
+      :class="[
+        { 'rounded-b-lg': isLoading || numItems === 0 },
+      ]">
       <table class="overflow-hidden min-w-full border-separate border-spacing-0">
         <thead class="bg-slate-100">
           <tr>
@@ -196,9 +191,9 @@ function handleSearchQueryChange(e: Event) {
         </tbody>
       </table>
     </div>
-    <nav v-if="pageInfo" class="flex items-center justify-between rounded-b-lg border-x border-b border-gray-300 bg-white px-4 py-3" aria-label="Pagination">
+    <nav v-if="pageInfo && numItems > 0" class="flex items-center justify-between rounded-b-lg border-x border-b border-gray-300 bg-white px-4 py-3" aria-label="Pagination">
       <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
-        <span class="font-medium">{{ pageInfo.totalCount }}</span> results
+        <span class="font-medium">{{ pageInfo.totalCount }}</span> result{{ pageInfo.totalCount > 1 ? 's' : '' }}
       </p>
       <div v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="flex flex-1 justify-between sm:justify-end">
         <button
@@ -215,34 +210,5 @@ function handleSearchQueryChange(e: Event) {
         </button>
       </div>
     </nav>
-
-    <TransitionRoot as="template" :show="isFilterPanelOpen">
-      <Dialog as="div" class="relative z-40" @close="isFilterPanelOpen = false">
-        <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-black bg-opacity-25" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 z-40 flex">
-          <TransitionChild as="template" enter="transition ease-in-out duration-300 transform" enter-from="translate-x-full" enter-to="translate-x-0" leave="transition ease-in-out duration-300 transform" leave-from="translate-x-0" leave-to="translate-x-full">
-            <DialogPanel class="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white pb-12 shadow-xl space-y-4">
-              <div class="sticky top-0 flex items-center justify-between p-4 bg-white bg-opacity-50 backdrop-blur-sm">
-                <h2 class="text-lg font-medium text-gray-900">Filters</h2>
-                <button type="button" class="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400" @click="isFilterPanelOpen = false">
-                  <span class="sr-only">Close menu</span>
-                  <XIcon class="h-6 w-6" aria-hidden="true" />
-                </button>
-              </div>
-
-              <!-- Filters -->
-              <form class="p-4">
-                <template v-for="header in headers" :key="header.key">
-                  <slot :name="`filter-panel-${header.key}`" :header="header"></slot>
-                </template>
-              </form>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
-      </Dialog>
-    </TransitionRoot>
   </div>
 </template>

@@ -25,11 +25,11 @@ const searchQuery = ref('');
 
 const headers: IDataTableHeader[] = [
 { label: "Name", key: "name", isSortable: true, isFilterable: false },
-{ label: "Categories", key: "categories", isSortable: false, isFilterable: true },
-{ label: "Lists", key: "lists", isSortable: false, isFilterable: true },
-{ label: "Stores", key: "stores", isSortable: false, isFilterable: true },
+{ label: "Category", key: "categories", isSortable: false, isFilterable: true },
+{ label: "List", key: "lists", isSortable: false, isFilterable: true },
+{ label: "Store", key: "stores", isSortable: false, isFilterable: true },
 ];
-const pageSize = 50;
+const pageSize = 3;
 
 const filterCategoriesQuery = ref('')
 const filterCategoriesSelected = ref([]);
@@ -163,8 +163,6 @@ function boldSearchQuery(query: string | null, text: string) {
       :pageInfo="pageInfo"
       :orderBy="orderBy"
       :filterBy="filterBy"
-      :showFilterButton="true"
-      :showSelectedFilters="true"
       :showSearch="true"
       :searchQuery="searchQuery"
       :searchPlaceholder="'Search by product name'"
@@ -183,55 +181,65 @@ function boldSearchQuery(query: string | null, text: string) {
           />
         </div>
       </template>
-      <template #filter-panel-categories="{ header }">
-        <h3>
-          <span class="font-medium text-gray-900">{{ header.label }}</span>
-        </h3>
+      <template #filter-status-categories>
+        <span
+          v-if="filterBy.categories?.length > 0"
+          class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+        >
+          {{ filterBy.categories?.length }}
+        </span>
+      </template>
+      <template #filter-panel-categories>
+        <div class="py-4">
+          <div class="px-4">
+            <Combobox as="template" v-model="filterCategoriesSelected" multiple :nullable="true">
+              <div class="relative">
+                <div class="relative">
+                  <ComboboxInput
+                    class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    @change="filterCategoriesQuery = $event.target.value"
+                    :displayValue="() => filterCategoriesQuery"
+                    :placeholder="'Search categories'"
+                  />
+                  <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                    <ChevronsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </ComboboxButton>
+                </div>
 
-        <div class="mt-4 space-y-4">
-          <div v-if="filterCategoriesSelected.length > 0" class="flex flex-row flex-wrap gap-1">
+                <ComboboxOptions v-if="filteredCategories.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  <ComboboxOption
+                    as="template"
+                    v-for="categoryUid in filteredCategories"
+                    :key="categoryUid"
+                    :value="categoryUid"
+                    v-slot="{ active, selected }"
+                  >
+                    <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
+                      <span
+                        :class="['block truncate']"
+                        v-html="boldSearchQuery(filterCategoriesQuery, shopStore.productCategories[categoryUid].name)"
+                      />
+
+                      <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
+                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ComboboxOption>
+                </ComboboxOptions>
+              </div>
+            </Combobox>
+          </div>
+          <div v-if="filterCategoriesSelected.length > 0" class="flex flex-row flex-wrap gap-1 max-h-40 mt-4 px-4 overflow-auto">
             <ColorBadge
               v-for="categoryUid in filterCategoriesSelected" :key="categoryUid"
               :label="shopStore.productCategories[categoryUid].name"
-              :color="shopStore.productCategories[categoryUid].color" />
+              :color="shopStore.productCategories[categoryUid].color"
+              :showRemoveButton="true"
+              @remove="() => filterCategoriesSelected = filterCategoriesSelected.filter((uid) => uid !== categoryUid)"
+            />
           </div>
-
-          <Combobox as="template" v-model="filterCategoriesSelected" multiple :nullable="true">
-            <div class="relative mt-2">
-              <ComboboxInput
-                class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                @change="filterCategoriesQuery = $event.target.value"
-                :displayValue="() => filterCategoriesQuery"
-                :placeholder="'Search for a category'"
-              />
-
-              <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                <ChevronsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-              </ComboboxButton>
-
-              <ComboboxOptions v-if="filteredCategories.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                <ComboboxOption
-                  as="template"
-                  v-for="categoryUid in filteredCategories"
-                  :key="categoryUid"
-                  :value="categoryUid"
-                  v-slot="{ active, selected }"
-                >
-                  <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
-                    <span
-                      :class="['block truncate', selected && 'font-semibold']"
-                      v-html="boldSearchQuery(filterCategoriesQuery, shopStore.productCategories[categoryUid].name)"
-                    />
-
-                    <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
-                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                    </span>
-                  </li>
-                </ComboboxOption>
-              </ComboboxOptions>
-            </div>
-          </Combobox>
         </div>
+
       </template>
     </DataTable>
   </AppMain>
