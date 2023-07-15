@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, type PropType, watchEffect, watch } from 'vue';
-import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ListFilterIcon, XIcon } from 'lucide-vue-next';
-import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { computed, ref, type PropType } from 'vue';
+import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
 import { countBy, keyBy } from 'lodash';
@@ -89,10 +88,10 @@ function handleSearchQueryChange(e: Event) {
 
 <template>
   <div class="relative">
-    <div class="flex flex-row justify-between my-4">
-      <div class="flex flex-row items-center space-x-2">
+    <div class="flex flex-row flex-wrap-reverse sm:flex-wrap justify-between my-4 gap-4">
+      <div class="flex flex-row items-center space-x-2 overflow-auto sm:overflow-visible">
         <template v-for="header in headers" :key="header.key">
-          <Popover v-if="header.isFilterable" class="relative inline-block text-left">
+          <Popover v-if="header.isFilterable" class="sm:relative inline-block text-left">
             <PopoverButton class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
               {{ header.label }}
               <slot :name="`filter-status-${header.key}`" :header="header"></slot>
@@ -107,7 +106,7 @@ function handleSearchQueryChange(e: Event) {
           </Popover>
         </template>
       </div>
-      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 w-1/3 min-w-60">
+      <div v-if="showSearch" class="relative flex flex-row items-stretch focus-within:z-10 w-full sm:w-1/3 sm:min-w-60">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </div>
@@ -195,18 +194,18 @@ function handleSearchQueryChange(e: Event) {
       <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
         <span class="font-medium">{{ pageInfo.totalCount }}</span> result{{ pageInfo.totalCount > 1 ? 's' : '' }}
       </p>
-      <div v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="flex flex-1 justify-between sm:justify-end">
+      <div v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="flex flex-1 justify-end">
         <button
           @click="emit('prevPage', pageInfo)"
           :disabled="!pageInfo.hasPreviousPage"
-          class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
-          Previous
+          class="relative inline-flex flex-row justify-center items-center rounded-md bg-white p-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
+          <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
         </button>
         <button
           @click="emit('nextPage', pageInfo)"
           :disabled="!pageInfo.hasNextPage"
-          class="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
-          Next
+          class="relative ml-3 inline-flex flex-row justify-center items-center rounded-md bg-white p-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
+          <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
     </nav>
