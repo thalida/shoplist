@@ -98,7 +98,7 @@ function handleSearchQueryChange(e: Event) {
 </script>
 
 <template>
-  <div class="relative overflow-auto">
+  <div class="relative">
     <div class="flex flex-row justify-between my-4">
       <div class="flex flex-row items-center space-x-2 lg:space-x-4">
         <button
@@ -129,71 +129,74 @@ function handleSearchQueryChange(e: Event) {
         />
       </div>
     </div>
-    <table class="min-w-full border-separate border-spacing-0">
-      <thead>
-        <tr>
-          <th
-            v-for="header in headers" :key="header.key"
-            scope="col"
-            class="border-b border-gray-300 bg-white px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-            :style= "{ width: headerItemWidth }"
-          >
-            <div class="flex flex-row justify-between items-center space-x-4">
-              <component
-                :is="header.isSortable ? 'button' : 'div'"
-                @click="header.isSortable ? emit('updateOrderBy', header) : null"
-                class="group inline-flex space-x-2"
-              >
-                <div>
-                  <slot :name="`header-${header.key}:label`" :header="header">
-                    {{ header.label }}
-                  </slot>
-                </div>
-                <span
-                  v-if="header.isSortable"
-                  class="flex-none rounded text-gray-400"
+    <div class="overflow-auto border border-gray-300 rounded-t-lg">
+      <table class="overflow-hidden min-w-full border-separate border-spacing-0">
+        <thead class="bg-gray-50">
+          <tr>
+            <th
+              v-for="header in headers" :key="header.key"
+              scope="col"
+              class="border-b border-gray-300 px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+              :style= "{ width: headerItemWidth }"
+            >
+              <div class="flex flex-row justify-between items-center space-x-4">
+                <component
+                  :is="header.isSortable ? 'button' : 'div'"
+                  @click="header.isSortable ? emit('updateOrderBy', header) : null"
+                  class="group inline-flex space-x-2"
                 >
-                <ChevronDownIcon v-if="orderByField[header.key]?.value === true" class="h-5 w-5" aria-hidden="true" />
-                <ChevronUpIcon v-else-if="orderByField[header.key]?.value === false" class="h-5 w-5" aria-hidden="true" />
-                <ChevronsUpDownIcon v-else class="h-5 w-5" aria-hidden="true" />
-                </span>
-              </component>
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="isLoading">
-          <td class="px-3 py-4 text-sm text-gray-500 text-center" :colspan="headers.length + 1">
-            <slot name="empty">
-              Loading...
-            </slot>
-          </td>
-        </tr>
-        <tr v-else-if="numItems === 0">
-          <td class="px-3 py-4 text-sm text-gray-500 text-center" :colspan="headers.length + 1">
-            <slot name="empty">
-              No items found.
-            </slot>
-          </td>
-        </tr>
-        <tr v-else v-for="(item, itemIdx) in items" :key="itemIdx">
-          <td
-            v-for="(header, headerIdx) in headers" :key="header.key"
-            :class="[
-              headerIdx === 0 ? 'whitespace-nowrap' : '',
-              itemIdx !== numItems - 1 ? 'border-b border-gray-200' : '',
-              'px-3 py-4 text-sm text-gray-500'
-            ]"
-          >
-            <slot :name="`item-${header.key}`" :item="item" :header="header">
-              {{ item[header.key] }}
-            </slot>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <nav v-if="pageInfo" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
+                  <div>
+                    <slot :name="`header-${header.key}:label`" :header="header">
+                      {{ header.label }}
+                    </slot>
+                  </div>
+                  <span
+                    v-if="header.isSortable"
+                    class="flex-none rounded text-gray-400"
+                  >
+                  <ChevronDownIcon v-if="orderByField[header.key]?.value === true" class="h-5 w-5" aria-hidden="true" />
+                  <ChevronUpIcon v-else-if="orderByField[header.key]?.value === false" class="h-5 w-5" aria-hidden="true" />
+                  <ChevronsUpDownIcon v-else class="h-5 w-5" aria-hidden="true" />
+                  </span>
+                </component>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="isLoading">
+            <td class="px-3 py-4 text-sm text-gray-500 text-center" :colspan="headers.length + 1">
+              <slot name="empty">
+                Loading...
+              </slot>
+            </td>
+          </tr>
+          <tr v-else-if="numItems === 0">
+            <td class="px-3 py-4 text-sm text-gray-500 text-center" :colspan="headers.length + 1">
+              <slot name="empty">
+                No items found.
+              </slot>
+            </td>
+          </tr>
+          <tr v-else v-for="(item, itemIdx) in items" :key="itemIdx">
+            <td
+              v-for="(header, headerIdx) in headers" :key="header.key"
+              :class="[
+                headerIdx === 0 ? 'whitespace-nowrap' : '',
+                itemIdx !== numItems - 1 ? 'border-b border-gray-200' : '',
+                itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50',
+                'px-3 py-4 text-sm text-gray-500'
+              ]"
+            >
+              <slot :name="`item-${header.key}`" :item="item" :header="header">
+                {{ item[header.key] }}
+              </slot>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <nav v-if="pageInfo" class="flex items-center justify-between rounded-b-lg border-x border-b border-gray-300 bg-white px-4 py-3" aria-label="Pagination">
       <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
         <span class="font-medium">{{ pageInfo.totalCount }}</span> results
       </p>
