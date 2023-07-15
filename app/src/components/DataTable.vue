@@ -131,7 +131,7 @@ function handleSearchQueryChange(e: Event) {
     </div>
     <div class="overflow-auto border border-gray-300 rounded-t-lg">
       <table class="overflow-hidden min-w-full border-separate border-spacing-0">
-        <thead class="bg-gray-50">
+        <thead class="bg-slate-100">
           <tr>
             <th
               v-for="header in headers" :key="header.key"
@@ -182,7 +182,7 @@ function handleSearchQueryChange(e: Event) {
             <td
               v-for="(header, headerIdx) in headers" :key="header.key"
               :class="[
-                headerIdx === 0 ? 'whitespace-nowrap' : '',
+                headerIdx === 0 ? 'whitespace-nowrap font-semibold' : '',
                 itemIdx !== numItems - 1 ? 'border-b border-gray-200' : '',
                 itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50',
                 'px-3 py-4 text-sm text-gray-500'
