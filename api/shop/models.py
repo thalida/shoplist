@@ -11,6 +11,7 @@ class ListCategory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
+    color = models.CharField(max_length=10, choices=ColorChoice.choices, default=ColorChoice.WHITE)
 
     def __str__(self):
         return self.name
@@ -24,6 +25,7 @@ class StoreCategory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
+    color = models.CharField(max_length=10, choices=ColorChoice.choices, default=ColorChoice.WHITE)
 
     def __str__(self):
         return self.name
@@ -76,7 +78,7 @@ class Store(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.ForeignKey('StoreCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    categories = models.ManyToManyField('StoreCategory', blank=True, related_name='stores')
     products = models.ManyToManyField('Product', through='StoreProduct', related_name='stores')
 
     def __str__(self):
@@ -103,7 +105,7 @@ class List(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
-    category = models.ForeignKey('ListCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    categories = models.ManyToManyField('ListCategory', blank=True, related_name='lists')
     products = models.ManyToManyField(Product, through='ListProduct', related_name='lists')
 
     def __str__(self):
