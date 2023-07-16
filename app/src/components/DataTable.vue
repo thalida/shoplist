@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, type PropType } from 'vue';
+import { computed, type PropType } from 'vue';
 import { ChevronsUpDownIcon, ChevronUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/graphql';
-import { countBy, keyBy } from 'lodash';
+import type { IPageInfo, IFilterBy, IOrderBy } from '@/types/api';
+import { keyBy } from 'lodash';
 import { SearchIcon } from 'lucide-vue-next';
 
 export interface IDataTableHeader {
@@ -212,3 +212,4 @@ function handleSearchQueryChange(e: Event) {
     </nav>
   </div>
 </template>
+@/types/api

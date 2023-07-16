@@ -13,22 +13,23 @@ import {
 import { TransitionRoot, TransitionChild } from '@headlessui/vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import AppMain from '@/components/AppMain.vue';
-import { useShopStore } from '@/stores/shop';
+import { useProductStore } from '@/stores/product';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
 import ColorBadge from '@/components/ColorBadge.vue';
 import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE } from '@/router';
+import { formatOrderByArgs, toggleOrderByField } from '@/utils/api';
 
 const router = useRouter();
 const route = useRoute();
 const isDetailRoute = computed(() => route.matched.some((m) => m.name === PRODUCT_DETAIL_ROUTE));
 
-const shopStore = useShopStore();
-const products = computed(() => shopStore.productsPageItems);
-const isLoading = computed(() => shopStore.productsIsLoading);
-const apiErrors = computed(() => shopStore.productsAPIErrors);
-const pageInfo = computed(() => shopStore.productsPageInfo);
-const orderBy = computed(() => shopStore.productsOrderBy);
-const filterBy = computed(() => shopStore.productsFilterBy);
+const productStore = useProductStore();
+const products = computed(() => productStore.pageItems);
+const isLoading = computed(() => productStore.isLoading);
+const apiErrors = computed(() => productStore.errors);
+const pageInfo = computed(() => productStore.pageInfo);
+const orderBy = computed(() => productStore.orderBy);
+const filterBy = computed(() => productStore.filterBy);
 const searchQuery = ref('');
 
 const headers: IDataTableHeader[] = [
@@ -43,15 +44,15 @@ const filterCategoriesQuery = ref('')
 const filterCategoriesSelected = ref([]);
 const filteredCategories = computed(() =>
   filterCategoriesQuery.value === ''
-    ? shopStore.productCategoryOrder
-    : shopStore.productCategoryOrder.filter((uid) => {
-        return shopStore.productCategories[uid].name
+    ? productStore.categoryOrder
+    : productStore.categoryOrder.filter((uid) => {
+        return productStore.categories[uid].name
           .toLowerCase()
           .includes(filterCategoriesQuery.value.toLowerCase())
       })
 )
 watch(() => filterCategoriesSelected.value, () => {
-  shopStore.setProductsFilterBy({
+  productStore.setFilterBy({
     ...filterBy.value,
     categories: filterCategoriesSelected.value,
   });
@@ -61,9 +62,9 @@ watch(() => filterCategoriesSelected.value, () => {
 });
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
-  const orderByStr = shopStore.formatOrderByArgs(orderBy.value, { category: 'category__name' });
+  const orderByStr = formatOrderByArgs(orderBy.value, { category: 'category__name' });
 
-  shopStore.fetchProducts({
+  productStore.fetch({
     first,
     last,
     after,
@@ -90,8 +91,8 @@ function handlePrevPage(){
 }
 
 function handleUpdateOrderBy(header: IDataTableHeader) {
-  const newOrderBy = shopStore.toggleOrderByField(orderBy.value, header.key);
-  shopStore.setProductsOrderBy(newOrderBy);
+  const newOrderBy = toggleOrderByField(orderBy.value, header.key);
+  productStore.setOrderBy(newOrderBy);
   debouncedLoadData({
     first: pageSize,
   });
@@ -99,7 +100,7 @@ function handleUpdateOrderBy(header: IDataTableHeader) {
 
 function handleUpdateSearchQuery(newSearchQuery: string) {
   searchQuery.value = newSearchQuery;
-  shopStore.setProductsFilterBy({
+  productStore.setFilterBy({
     ...filterBy.value,
     name_Icontains: searchQuery.value,
   });
@@ -109,7 +110,7 @@ function handleUpdateSearchQuery(newSearchQuery: string) {
 }
 
 onMounted(async () => {
-  await shopStore.getProductCategories();
+  await productStore.getCategories();
   loadData({
     first: pageSize,
   })
@@ -245,7 +246,7 @@ function handleDetailPanelClose() {
                       <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
                         <span
                           :class="['block truncate']"
-                          v-html="boldSearchQuery(filterCategoriesQuery, shopStore.productCategories[categoryUid].name)"
+                          v-html="boldSearchQuery(filterCategoriesQuery, productStore.categories[categoryUid].name)"
                         />
 
                         <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
@@ -260,8 +261,8 @@ function handleDetailPanelClose() {
             <div v-if="filterCategoriesSelected.length > 0" class="flex flex-row flex-wrap gap-1 max-h-40 mt-4 px-4 py-1 overflow-auto">
               <ColorBadge
                 v-for="categoryUid in filterCategoriesSelected" :key="categoryUid"
-                :label="shopStore.productCategories[categoryUid].name"
-                :color="shopStore.productCategories[categoryUid].color"
+                :label="productStore.categories[categoryUid].name"
+                :color="productStore.categories[categoryUid].color"
                 :showRemoveButton="true"
                 @remove="() => filterCategoriesSelected = filterCategoriesSelected.filter((uid) => uid !== categoryUid)"
               />

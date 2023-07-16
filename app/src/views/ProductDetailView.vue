@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import { XIcon } from 'lucide-vue-next';
 import { DialogTitle } from '@headlessui/vue';
 import { PRODUCTS_ROUTE } from '@/router';
-import { useShopStore } from '@/stores/shop';
+import { useProductStore } from '@/stores/product';
 import { computed, onMounted } from 'vue';
 
 
@@ -14,8 +14,8 @@ const props = defineProps({
   },
 });
 const router = useRouter();
-const shopStore = useShopStore();
-const product = computed(() => shopStore.getProductById(props.productId));
+const productStore = useProductStore();
+const product = computed(() => productStore.getById(props.productId));
 
 function handleDetailPanelClose() {
   router.push({
@@ -27,7 +27,7 @@ function handleDetailPanelClose() {
 }
 
 onMounted(() => {
-  shopStore.getOrFetchProduct(props.productId);
+  productStore.getOrFetch(props.productId);
 });
 </script>
 
