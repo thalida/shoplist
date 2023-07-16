@@ -1,0 +1,30 @@
+query List($uid: ID!) {
+  list(id: $uid) {
+    uid
+    name
+    categories {
+      edges {
+        node {
+          uid
+          name
+          color
+        }
+      }
+    }
+    products {
+      edges {
+        node {
+          quantityHave
+          quantityNeeded
+          unit {
+            name
+          }
+          product {
+            uid
+            name
+          }
+        }
+      }
+    }
+  }
+}

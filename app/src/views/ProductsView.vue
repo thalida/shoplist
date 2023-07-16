@@ -1,36 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { XCircleIcon, PlusIcon, ChevronsUpDownIcon, CheckIcon } from 'lucide-vue-next';
+import { XCircleIcon, PlusIcon } from 'lucide-vue-next';
 import { debounce } from 'lodash';
-import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOptions,
-  ComboboxOption,
-} from '@headlessui/vue';
 import { TransitionRoot, TransitionChild } from '@headlessui/vue';
+import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE } from '@/router';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import AppMain from '@/components/AppMain.vue';
-import { useProductStore } from '@/stores/product';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
 import ColorBadge from '@/components/ColorBadge.vue';
-import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE } from '@/router';
+import ComboboxFilter from '@/components/ComboboxFilter.vue';
 import { formatOrderByArgs, toggleOrderByField } from '@/utils/api';
+import { useProductStore } from '@/stores/product';
+import { useListStore } from '@/stores/list';
 
 const router = useRouter();
 const route = useRoute();
 const isDetailRoute = computed(() => route.matched.some((m) => m.name === PRODUCT_DETAIL_ROUTE));
 
+const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
+const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
+
+const listStore = useListStore();
 const productStore = useProductStore();
+
 const products = computed(() => productStore.pageItems);
 const isLoading = computed(() => productStore.isLoading);
 const apiErrors = computed(() => productStore.errors);
 const pageInfo = computed(() => productStore.pageInfo);
 const orderBy = computed(() => productStore.orderBy);
 const filterBy = computed(() => productStore.filterBy);
-const searchQuery = ref('');
 
 const headers: IDataTableHeader[] = [
 { label: "Name", key: "name", isSortable: true, isFilterable: false },
@@ -39,27 +38,7 @@ const headers: IDataTableHeader[] = [
 { label: "Store", key: "stores", isSortable: false, isFilterable: true },
 ];
 const pageSize = 3;
-
-const filterCategoriesQuery = ref('')
-const filterCategoriesSelected = ref([]);
-const filteredCategories = computed(() =>
-  filterCategoriesQuery.value === ''
-    ? productStore.categoryOrder
-    : productStore.categoryOrder.filter((uid) => {
-        return productStore.categories[uid].name
-          .toLowerCase()
-          .includes(filterCategoriesQuery.value.toLowerCase())
-      })
-)
-watch(() => filterCategoriesSelected.value, () => {
-  productStore.setFilterBy({
-    ...filterBy.value,
-    categories: filterCategoriesSelected.value,
-  });
-  loadData({
-    first: pageSize,
-  });
-});
+const searchQuery = ref('');
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
   const orderByStr = formatOrderByArgs(orderBy.value, { category: 'category__name' });
@@ -110,20 +89,14 @@ function handleUpdateSearchQuery(newSearchQuery: string) {
 }
 
 onMounted(async () => {
-  await productStore.getCategories();
+  await Promise.all([
+    productStore.getCategories(),
+    listStore.fetch(),
+  ]);
   loadData({
     first: pageSize,
   })
 });
-
-function boldSearchQuery(query: string | null, text: string) {
-  if (!query) {
-    return text;
-  }
-
-  const regex = new RegExp(query, 'gi');
-  return text.replace(regex, (match) => `<b>${match}</b>`);
-}
 
 function handleClickRowItem(item: Record<string, any>) {
   router.push({
@@ -140,6 +113,27 @@ function handleDetailPanelClose() {
     params: {
       productId: null,
     },
+  });
+}
+
+function handleSelectedCategoriesChanged(selectedItems: string[]) {
+  productStore.setFilterBy({
+    ...filterBy.value,
+    categories: selectedItems,
+  });
+  debouncedLoadData({
+    first: pageSize,
+  });
+}
+
+function handleSelectedListsChanged(selectedItems: string[]) {
+  console.log('handleSelectedListsChanged', selectedItems)
+  productStore.setFilterBy({
+    ...filterBy.value,
+    lists: selectedItems,
+  });
+  debouncedLoadData({
+    first: pageSize,
   });
 }
 </script>
@@ -218,56 +212,45 @@ function handleDetailPanelClose() {
           </span>
         </template>
         <template #filter-panel-categories>
-          <div class="py-4">
-            <div class="px-4">
-              <Combobox as="template" v-model="filterCategoriesSelected" multiple :nullable="true">
-                <div class="relative">
-                  <div class="relative">
-                    <ComboboxInput
-                      class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      @change="filterCategoriesQuery = $event.target.value"
-                      :displayValue="() => filterCategoriesQuery"
-                      :placeholder="'Search categories'"
-                    />
-                    <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                      <ChevronsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </ComboboxButton>
-                  </div>
-
-                  <ComboboxOptions v-if="filteredCategories.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    <ComboboxOption
-                      as="template"
-                      v-for="categoryUid in filteredCategories"
-                      :key="categoryUid"
-                      :value="categoryUid"
-                      v-slot="{ active, selected }"
-                    >
-                      <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
-                        <span
-                          :class="['block truncate']"
-                          v-html="boldSearchQuery(filterCategoriesQuery, productStore.categories[categoryUid].name)"
-                        />
-
-                        <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
-                          <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                        </span>
-                      </li>
-                    </ComboboxOption>
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
-            </div>
-            <div v-if="filterCategoriesSelected.length > 0" class="flex flex-row flex-wrap gap-1 max-h-40 mt-4 px-4 py-1 overflow-auto">
+          <ComboboxFilter
+            ref="categoriesComboxFilter"
+            :items="productStore.categories"
+            :selected="filterBy.categories"
+            labelKey="name"
+            valueKey="uid"
+            idKey="uid"
+            inputPlaceholder="Search categories"
+            @update:selected="handleSelectedCategoriesChanged"
+          >
+            <template #selected="{ selected }">
               <ColorBadge
-                v-for="categoryUid in filterCategoriesSelected" :key="categoryUid"
-                :label="productStore.categories[categoryUid].name"
-                :color="productStore.categories[categoryUid].color"
+                v-for="categoryUid in selected"
+                :key="categoryUid"
+                :label="productStore.getCategoryById(categoryUid)?.name"
+                :color="productStore.getCategoryById(categoryUid)?.color"
                 :showRemoveButton="true"
-                @remove="() => filterCategoriesSelected = filterCategoriesSelected.filter((uid) => uid !== categoryUid)"
+                @remove="categoriesComboxFilter?.removeItem(categoryUid)"
               />
-            </div>
-          </div>
-
+            </template>
+          </ComboboxFilter>
+        </template>
+        <template #filter-panel-lists>
+          <ComboboxFilter
+            ref="listsComboxFilter"
+            :items="Object.values(listStore.collection)"
+            :selected="filterBy.lists"
+            labelKey="name"
+            valueKey="uid"
+            idKey="uid"
+            inputPlaceholder="Search lists"
+            @update:selected="handleSelectedListsChanged"
+          >
+            <template #selected="{ selected }">
+              <div v-for="itemId in selected" :key="itemId">
+                {{ listStore.collection[itemId].name }}
+              </div>
+            </template>
+          </ComboboxFilter>
         </template>
       </DataTable>
     </div>

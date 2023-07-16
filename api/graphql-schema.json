@@ -980,29 +980,11 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "categories",
+                  "name": "color",
                   "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  }
-                },
-                {
-                  "defaultValue": null,
-                  "description": null,
-                  "name": "products",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
                   }
                 },
                 {
@@ -1022,7 +1004,7 @@
               "name": "allListCategories",
               "type": {
                 "kind": "OBJECT",
-                "name": "ListNodeConnection",
+                "name": "ListCategoryNodeConnection",
                 "ofType": null
               }
             },

@@ -21,20 +21,20 @@ class ProductFilter(FilterSet):
     }
 
   categories = filters.ModelMultipleChoiceFilter(
-      field_name='categories__uid',
+      field_name='categories',
       to_field_name='uid',
       queryset=ProductCategory.objects.all(),
   )
 
   stores = filters.ModelMultipleChoiceFilter(
-      field_name='stores__uid',
-      to_field_name='uid',
-      queryset=Store.objects.all(),
+      field_name='stores',
+      to_field_name='store_id',
+      queryset=StoreProduct.objects.all(),
   )
 
   lists = filters.ModelMultipleChoiceFilter(
-      field_name='lists__uid',
-      to_field_name='list__uid',
+      field_name='lists',
+      to_field_name='list_id',
       queryset=ListProduct.objects.all(),
   )
 
@@ -66,14 +66,14 @@ class ListFilter(FilterSet):
     }
 
   categories = filters.ModelMultipleChoiceFilter(
-      field_name='categories__uid',
+      field_name='categories',
       to_field_name='uid',
       queryset=ListCategory.objects.all(),
   )
 
   products = filters.ModelMultipleChoiceFilter(
-      field_name='products__uid',
-      to_field_name='uid',
+      field_name='products',
+      to_field_name='product_id',
       queryset=ListProduct.objects.all(),
   )
 
@@ -121,15 +121,15 @@ class StoreFilter(FilterSet):
     }
 
   categories = filters.ModelMultipleChoiceFilter(
-      field_name='categories__uid',
+      field_name='categories',
       to_field_name='uid',
       queryset=StoreCategory.objects.all(),
   )
 
   products = filters.ModelMultipleChoiceFilter(
-      field_name='products__uid',
-      to_field_name='uid',
-      queryset=Product.objects.all(),
+      field_name='products',
+      to_field_name='product_id',
+      queryset=StoreProduct.objects.all(),
   )
 
   order_by = OrderingFilter(

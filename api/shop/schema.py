@@ -31,7 +31,7 @@ class ShopQuery(graphene.ObjectType):
     all_product_units = DjangoFilterConnectionField(ProductUnitNode)
 
     list_category = RelayUUIDNode.Field(ListCategoryNode)
-    all_list_categories = DjangoFilterConnectionField(ListNode)
+    all_list_categories = DjangoFilterConnectionField(ListCategoryNode)
 
     store_category = RelayUUIDNode.Field(StoreCategoryNode)
     all_store_categories = DjangoFilterConnectionField(StoreCategoryNode)

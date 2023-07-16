@@ -100,7 +100,7 @@ export const useListStore = defineStore('list', () => {
 
     const totalCount = data?.value?.allLists?.totalCount || 0;
     const pageInfoRes = data?.value?.allLists?.pageInfo;
-    const productsRes = humanizeGraphQLResponse(data?.value);
+    const res = humanizeGraphQLResponse(data?.value);
 
     pageInfo.value = {
       hasPreviousPage: pageInfoRes?.hasPreviousPage || false,
@@ -110,19 +110,20 @@ export const useListStore = defineStore('list', () => {
       totalCount,
     }
 
-    if (!productsRes) {
+    if (!res) {
       pageOrder.value = [];
       isLoading.value = false;
       return;
     }
 
     const newPageOrder: string[] = [];
-    for (const product of productsRes.allProducts) {
-      collection.value[product.uid] = product;
-      newPageOrder.push(product.uid);
+    for (const item of res.allLists) {
+      collection.value[item.uid] = item;
+      newPageOrder.push(item.uid);
     }
 
     pageOrder.value = newPageOrder;
+
     isLoading.value = false;
   }
 
@@ -153,6 +154,7 @@ export const useListStore = defineStore('list', () => {
     isLoading,
     errors,
     pageItems,
+    pageOrder,
     pageInfo,
     orderBy,
     filterBy,

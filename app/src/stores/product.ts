@@ -26,6 +26,8 @@ export const useProductStore = defineStore('product', () => {
   const filterBy: Ref<IFilterBy> = ref({
     name_Icontains: null,
     categories: [],
+    lists: [],
+    stores: [],
   });
   const pageOrder: Ref<string[]> = ref([]);
   const pageItems = computed(() => {
@@ -35,8 +37,7 @@ export const useProductStore = defineStore('product', () => {
     }
     return activePage;
   });
-  const categories: Ref<Record<string, any>> = ref({});
-  const categoryOrder: Ref<string[]> = ref([]);
+  const categories: Ref<Record<string, any>[]> = ref([]);
 
 
   function setOrderBy(newOrderBy: IOrderBy[]) {
@@ -100,7 +101,7 @@ export const useProductStore = defineStore('product', () => {
 
     const totalCount = data?.value?.allProducts?.totalCount || 0;
     const pageInfoRes = data?.value?.allProducts?.pageInfo;
-    const productsRes = humanizeGraphQLResponse(data?.value);
+    const res = humanizeGraphQLResponse(data?.value);
 
     pageInfo.value = {
       hasPreviousPage: pageInfoRes?.hasPreviousPage || false,
@@ -110,16 +111,16 @@ export const useProductStore = defineStore('product', () => {
       totalCount,
     }
 
-    if (!productsRes) {
+    if (!res) {
       pageOrder.value = [];
       isLoading.value = false;
       return;
     }
 
     const newPageOrder: string[] = [];
-    for (const product of productsRes.allProducts) {
-      collection.value[product.uid] = product;
-      newPageOrder.push(product.uid);
+    for (const item of res.allProducts) {
+      collection.value[item.uid] = item;
+      newPageOrder.push(item.uid);
     }
 
     pageOrder.value = newPageOrder;
@@ -140,12 +141,11 @@ export const useProductStore = defineStore('product', () => {
       return;
     }
 
-    categories.value = {};
-    categoryOrder.value = [];
-    for (const category of res.allProductCategories) {
-      categories.value[category.uid] = category;
-      categoryOrder.value.push(category.uid);
-    }
+    categories.value = cloneDeep(res.allProductCategories);
+  }
+
+  function getCategoryById (uid: string) {
+    return categories.value.find((category) => category.uid === uid);
   }
 
   return {
@@ -153,6 +153,7 @@ export const useProductStore = defineStore('product', () => {
     isLoading,
     errors,
     pageItems,
+    pageOrder,
     pageInfo,
     orderBy,
     filterBy,
@@ -161,8 +162,8 @@ export const useProductStore = defineStore('product', () => {
     fetch,
 
     categories,
-    categoryOrder,
     getCategories,
+    getCategoryById,
 
     setOrderBy,
     setFilterBy,
