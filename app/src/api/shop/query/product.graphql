@@ -14,16 +14,20 @@ query Product($uid: ID!) {
     stores {
       edges {
         node {
-          uid
-          name
+          store {
+            uid
+            name
+          }
         }
       }
     }
     lists {
       edges {
         node {
-          uid
-          name
+          list {
+            uid
+            name
+          }
         }
       }
     }

@@ -1,14 +1,41 @@
-query AllLists {
-  allLists {
-    id
-    name
-    category
-    products {
-      id
-      name
-      quantity_have
-      quantity_needed
-      unit
+query AllLists($first: Int, $after: String, $last: Int, $before: String, $orderBy: String, $uid: UUID, $name: String, $name_Icontains: String, $categories: [ID], $products: [ID]) {
+  allLists(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy, uid: $uid, name: $name, name_Icontains: $name_Icontains, categories: $categories, products: $products) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    edges {
+      node {
+        uid
+        name
+        categories {
+          edges {
+            node {
+              uid
+              name
+              color
+            }
+          }
+        }
+        products {
+          edges {
+            node {
+              quantityHave
+              quantityNeeded
+              unit {
+                name
+              }
+              product {
+                uid
+                name
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

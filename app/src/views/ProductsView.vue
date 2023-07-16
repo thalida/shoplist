@@ -171,10 +171,9 @@ function handleDetailPanelClose() {
             <div class="mt-2 text-sm text-red-700">
               <ul role="list" class="list-disc space-y-1 pl-5">
                 <li v-for="(error, errorKey) in apiErrors" :key="errorKey">
-                  {{ errorKey }}
                   <ul>
                     <li v-for="(errorItem, errorItemKey) in error" :key="errorItemKey">
-                      {{ errorItem.message }}
+                      {{ errorItem }}
                     </li>
                   </ul>
                 </li>

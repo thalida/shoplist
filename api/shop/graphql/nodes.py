@@ -18,6 +18,7 @@ from shop.models import (
 from shop.graphql.filters import (
   ProductFilter,
   ProductCategoryFilter,
+  ProductUnitFilter,
   ListCategoryFilter,
   ListFilter,
   ListProductFilter,
@@ -59,6 +60,7 @@ class ProductUnitNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ProductUnit
     fields = ['uid', 'name', 'created_at', 'updated_at']
+    filterset_class = ProductUnitFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount
@@ -68,6 +70,7 @@ class ListProductNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ListProduct
     fields = ['list', 'product', 'quantity_have', 'quantity_needed', 'unit', 'created_at', 'updated_at']
+    filterset_class = ListProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount
@@ -77,6 +80,7 @@ class StoreProductNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = StoreProduct
     fields = ['store', 'product', 'price', 'section', 'aisle', 'created_at', 'updated_at']
+    filterset_class = StoreProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount
@@ -100,7 +104,7 @@ class StoreNode(IsAuthenticated, DjangoObjectType):
 class StoreCategoryNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = StoreCategory
-    fields = ['uid', 'name', 'created_at', 'updated_at']
+    fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
     filterset_class = StoreCategoryFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
@@ -125,7 +129,7 @@ class ListNode(IsAuthenticated, DjangoObjectType):
 class ListCategoryNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ListCategory
-    fields = ['uid', 'name', 'created_at', 'updated_at']
+    fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
     filterset_class = ListCategoryFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False

@@ -2,16 +2,16 @@ import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useQuery } from "@/api";
 import {
-  ProductDocument,
-  AllProductsDocument,
-  type QueryAllProductsArgs,
-  AllProductCategoriesDocument,
+  ListDocument,
+  AllListsDocument,
+  type QueryAllListsArgs,
+  AllListCategoriesDocument,
 } from "@/api/gql/graphql";
 import { humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
 import { cloneDeep } from 'lodash';
 
-export const useProductStore = defineStore('product', () => {
+export const useListStore = defineStore('list', () => {
   const collection: Ref<Record<string, any>> = ref({});
   const isLoading: Ref<boolean> = ref(false);
   const errors: Ref<IError | null> = ref(null);
@@ -62,7 +62,7 @@ export const useProductStore = defineStore('product', () => {
 
   async function fetchOne(uid: string) {
     const { data, error } = await useQuery({
-      query: ProductDocument,
+      query: ListDocument,
       variables: { uid },
     });
 
@@ -80,17 +80,17 @@ export const useProductStore = defineStore('product', () => {
     collection.value[res.product.uid] = res.product;
   }
 
-  async function fetch(args?: QueryAllProductsArgs) {
+  async function fetch(args?: QueryAllListsArgs) {
     isLoading.value = true;
 
     const { data, error } = await useQuery({
-      query: AllProductsDocument,
+      query: AllListsDocument,
       variables: args,
       cachePolicy: "network-only"
     });
 
     if (error.value) {
-      errors.value = error.value.response.body.errors
+      errors.value = JSON.parse(error.value.response.body.errors[0].message);
       pageOrder.value = [];
       isLoading.value = false;
       return;
@@ -98,8 +98,8 @@ export const useProductStore = defineStore('product', () => {
 
     errors.value = null;
 
-    const totalCount = data?.value?.allProducts?.totalCount || 0;
-    const pageInfoRes = data?.value?.allProducts?.pageInfo;
+    const totalCount = data?.value?.allLists?.totalCount || 0;
+    const pageInfoRes = data?.value?.allLists?.pageInfo;
     const productsRes = humanizeGraphQLResponse(data?.value);
 
     pageInfo.value = {
@@ -128,7 +128,7 @@ export const useProductStore = defineStore('product', () => {
 
   async function getCategories() {
     const { data } = await useQuery({
-      query: AllProductCategoriesDocument,
+      query: AllListCategoriesDocument,
       variables: {
         orderBy: 'name',
       },
