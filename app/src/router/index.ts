@@ -8,6 +8,7 @@ export const SIGNIN_ROUTE = 'Signin'
 export const LISTS_ROUTE = 'List'
 export const LIST_DETAIL_ROUTE = 'ListDetail'
 export const PRODUCTS_ROUTE = 'Product'
+export const PRODUCT_DETAIL_ROUTE = 'ProductDetail'
 export const STORES_ROUTE = 'Store'
 
 export const HOME_ROUTE = LISTS_ROUTE
@@ -51,7 +52,15 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       },
-      component: () => import('../views/ProductsView.vue')
+      component: () => import('../views/ProductsView.vue'),
+      children: [
+        {
+          path: ':productId',
+          name: PRODUCT_DETAIL_ROUTE,
+          component: () => import('../views/ProductDetailView.vue'),
+          props: true,
+        },
+      ],
     },
     {
       path: '/stores',

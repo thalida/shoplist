@@ -2,6 +2,7 @@ import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useQuery } from "@/api";
 import {
+  ProductDocument,
   AllProductsDocument,
   type QueryAllProductsArgs,
   AllProductCategoriesDocument,
@@ -37,7 +38,40 @@ export const useShopStore = defineStore('shop', () => {
   const productCategories: Ref<Record<string, any>> = ref({});
   const productCategoryOrder: Ref<string[]> = ref([]);
 
-  async function getProducts(args?: QueryAllProductsArgs) {
+  function getProductById(uid: string) {
+    return products.value[uid];
+  }
+
+  async function getOrFetchProduct(uid: string) {
+    if (uid in products.value && products.value[uid] !== null) {
+      return getProductById(uid)
+    }
+
+    await fetchProduct(uid);
+    return getProductById(uid)
+  }
+
+  async function fetchProduct(uid: string) {
+    const { data, error } = await useQuery({
+      query: ProductDocument,
+      variables: { uid },
+    });
+
+    if (error.value) {
+      // productAPIErrors.value = JSON.parse(error.value.response.body.errors[0].message);
+      return;
+    }
+
+    const res = humanizeGraphQLResponse(data?.value);
+
+    if (!res) {
+      return;
+    }
+
+    products.value[res.product.uid] = res.product;
+  }
+
+  async function fetchProducts(args?: QueryAllProductsArgs) {
     productsIsLoading.value = true;
 
     const { data, error } = await useQuery({
@@ -162,7 +196,9 @@ export const useShopStore = defineStore('shop', () => {
     productsPageInfo,
     productsOrderBy,
     productsFilterBy,
-    getProducts,
+    getProductById,
+    getOrFetchProduct,
+    fetchProducts,
 
     productCategories,
     productCategoryOrder,

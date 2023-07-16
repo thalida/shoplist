@@ -1,0 +1,14 @@
+query AllLists {
+  allLists {
+    id
+    name
+    category
+    products {
+      id
+      name
+      quantity_have
+      quantity_needed
+      unit
+    }
+  }
+}

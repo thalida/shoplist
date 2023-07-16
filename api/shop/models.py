@@ -106,8 +106,6 @@ class List(models.Model):
     category = models.ForeignKey('ListCategory', blank=True, null=True, default=None, on_delete=models.SET_NULL)
     products = models.ManyToManyField(Product, through='ListProduct', related_name='lists')
 
-    is_hidden = models.BooleanField(default=False)
-
     def __str__(self):
         return self.name
 

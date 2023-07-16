@@ -63,6 +63,7 @@ const emit = defineEmits<{
   (e: 'prevPage', pageInfo: IPageInfo): void
   (e: 'updateOrderBy', header: IDataTableHeader): void
   (e: 'updateSearchQuery', query: string): void
+  (e: 'clickRowItem', item: Record<string, any>): void
 }>()
 
 const numHeaders = computed(() => props.headers.length)
@@ -72,12 +73,6 @@ const headerItemWidth = computed(() => {
 })
 const orderByField = computed(() => {
   return keyBy(props.orderBy, 'field')
-})
-const isFilterPanelOpen = ref(false)
-const numSelectedFilters = computed(() => {
-  return countBy(props.filterBy, (v) => {
-    return typeof v !== 'undefined' && v !== null && v.length > 0
-  }).true
 })
 
 function handleSearchQueryChange(e: Event) {
@@ -172,14 +167,20 @@ function handleSearchQueryChange(e: Event) {
               </slot>
             </td>
           </tr>
-          <tr v-else v-for="(item, itemIdx) in items" :key="itemIdx">
+          <tr
+            v-else
+            v-for="(item, itemIdx) in items"
+            :key="itemIdx"
+            class="group cursor-pointer"
+            @click="emit('clickRowItem', item)"
+          >
             <td
               v-for="(header, headerIdx) in headers" :key="header.key"
               :class="[
                 headerIdx === 0 ? 'whitespace-nowrap font-semibold' : '',
                 itemIdx !== numItems - 1 ? 'border-b border-gray-200' : '',
                 itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50',
-                'px-3 py-4 text-sm text-gray-500'
+                'px-3 py-4 text-sm text-gray-500 group-hover:bg-slate-100'
               ]"
             >
               <slot :name="`item-${header.key}`" :item="item" :header="header">
