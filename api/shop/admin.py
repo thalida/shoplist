@@ -3,31 +3,19 @@ from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin, TabularInline
 
 from .models import (
-    ListCategory,
-    StoreCategory,
+    Product,
     ProductCategory,
     ProductUnit,
-    Product,
+
     Store,
+    StoreCategory,
+    StoreSection,
     StoreProduct,
+
     List,
+    ListCategory,
     ListProduct,
 )
-
-@admin.register(ListCategory)
-class ListCategoryAdmin(ModelAdmin):
-    """
-    ListCategory admin
-    """
-    pass
-
-
-@admin.register(StoreCategory)
-class StoreCategoryAdmin(ModelAdmin):
-    """
-    StoreCategory admin
-    """
-    pass
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(ModelAdmin):
@@ -79,12 +67,38 @@ class StoreProductInline(TabularInline):
     model = StoreProduct
     extra = 0
 
+class StoreSectionInline(TabularInline):
+    """
+    StoreSection inline
+    """
+    model = StoreSection
+    extra = 0
+
+
+@admin.register(StoreCategory)
+class StoreCategoryAdmin(ModelAdmin):
+    """
+    StoreCategory admin
+    """
+    pass
+
+
+@admin.register(StoreSection)
+class StoreSectionAdmin(ModelAdmin):
+    """
+    StoreSection admin
+    """
+    list_display = ('name', 'section_type', 'store')
+    list_filter = ('section_type', 'store')
+
+
 @admin.register(Store)
 class StoreAdmin(ModelAdmin):
     """
     Store admin
     """
     inlines = [
+        StoreSectionInline,
         StoreProductInline,
     ]
 
@@ -96,6 +110,13 @@ class ListProductInline(TabularInline):
     model = ListProduct
     extra = 0
 
+
+@admin.register(ListCategory)
+class ListCategoryAdmin(ModelAdmin):
+    """
+    ListCategory admin
+    """
+    pass
 
 @admin.register(List)
 class ListAdmin(ModelAdmin):

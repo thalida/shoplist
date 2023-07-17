@@ -2,13 +2,14 @@ import graphene
 from django_filters import filters, FilterSet, OrderingFilter
 from shop.models import (
   Product,
-  Store,
-  List,
-  StoreCategory,
-  ListCategory,
   ProductCategory,
   ProductUnit,
+  Store,
+  StoreCategory,
   StoreProduct,
+  StoreSection,
+  List,
+  ListCategory,
   ListProduct,
 )
 
@@ -28,7 +29,7 @@ class ProductFilter(FilterSet):
 
   stores = filters.ModelMultipleChoiceFilter(
       field_name='stores',
-      to_field_name='store_id',
+      to_field_name='uid',
       queryset=Store.objects.all(),
   )
 
@@ -73,7 +74,7 @@ class ListFilter(FilterSet):
 
   products = filters.ModelMultipleChoiceFilter(
       field_name='products',
-      to_field_name='product_id',
+      to_field_name='uid',
       queryset=Product.objects.all(),
   )
 
@@ -128,7 +129,7 @@ class StoreFilter(FilterSet):
 
   products = filters.ModelMultipleChoiceFilter(
       field_name='products',
-      to_field_name='product_id',
+      to_field_name='uid',
       queryset=Product.objects.all(),
   )
 
@@ -158,11 +159,25 @@ class StoreProductFilter(FilterSet):
       'product': ['exact'],
       'price': ['exact'],
       'section': ['exact'],
-      'aisle': ['exact'],
     }
 
   order_by = OrderingFilter(
     fields=['store', 'product', 'price', 'section', 'aisle']
+  )
+
+
+
+class StoreSectionFilter(FilterSet):
+  class Meta:
+    model = StoreSection
+    fields = {
+      'uid': ['exact'],
+      'name': ['exact', 'icontains'],
+      'section_type': ['exact'],
+    }
+
+  order_by = OrderingFilter(
+    fields=['name', 'section_type']
   )
 
 

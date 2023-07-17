@@ -2,16 +2,16 @@ import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useQuery } from "@/api";
 import {
-  ListDocument,
-  AllListsDocument,
-  type QueryAllListsArgs,
-  AllListCategoriesDocument,
+  StoreDocument,
+  AllStoresDocument,
+  type QueryAllStoresArgs,
+  AllStoreCategoriesDocument,
 } from "@/api/gql/graphql";
 import { humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
 import { cloneDeep } from 'lodash';
 
-export const useListStore = defineStore('list', () => {
+export const useStoreStore = defineStore('store', () => {
   const collection: Ref<Record<string, any>> = ref({});
   const isLoading: Ref<boolean> = ref(false);
   const errors: Ref<IError | null> = ref(null);
@@ -61,7 +61,7 @@ export const useListStore = defineStore('list', () => {
 
   async function fetchOne(uid: string) {
     const { data, error } = await useQuery({
-      query: ListDocument,
+      query: StoreDocument,
       variables: { uid },
     });
 
@@ -79,11 +79,11 @@ export const useListStore = defineStore('list', () => {
     collection.value[res.product.uid] = res.product;
   }
 
-  async function fetch(args?: QueryAllListsArgs) {
+  async function fetch(args?: QueryAllStoresArgs) {
     isLoading.value = true;
 
     const { data, error } = await useQuery({
-      query: AllListsDocument,
+      query: AllStoresDocument,
       variables: args,
       cachePolicy: "network-only"
     });
@@ -97,8 +97,8 @@ export const useListStore = defineStore('list', () => {
 
     errors.value = null;
 
-    const totalCount = data?.value?.allLists?.totalCount || 0;
-    const pageInfoRes = data?.value?.allLists?.pageInfo;
+    const totalCount = data?.value?.allStores?.totalCount || 0;
+    const pageInfoRes = data?.value?.allStores?.pageInfo;
     const res = humanizeGraphQLResponse(data?.value);
 
     pageInfo.value = {
@@ -116,7 +116,7 @@ export const useListStore = defineStore('list', () => {
     }
 
     const newPageOrder: string[] = [];
-    for (const item of res.allLists) {
+    for (const item of res.allStores) {
       collection.value[item.uid] = item;
       newPageOrder.push(item.uid);
     }
@@ -127,7 +127,7 @@ export const useListStore = defineStore('list', () => {
 
   async function getCategories() {
     const { data } = await useQuery({
-      query: AllListCategoriesDocument,
+      query: AllStoreCategoriesDocument,
       variables: {
         orderBy: 'name',
       },

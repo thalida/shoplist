@@ -1,0 +1,31 @@
+query Store($uid: ID!) {
+  store(id: $uid) {
+    uid
+    name
+    categories {
+      edges {
+        node {
+          uid
+          name
+          color
+        }
+      }
+    }
+    products {
+      edges {
+        node {
+          price
+          section {
+            uid
+            name
+            sectionType
+          }
+          product {
+            uid
+            name
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,13 +6,14 @@ from api.graphql import ConnectionWithTotalCount
 from api.permissions import IsAuthenticated
 from shop.models import (
   Product,
-  Store,
-  List,
-  StoreCategory,
-  ListCategory,
   ProductCategory,
   ProductUnit,
+  Store,
+  StoreCategory,
+  StoreSection,
   StoreProduct,
+  List,
+  ListCategory,
   ListProduct,
 )
 from shop.graphql.filters import (
@@ -25,6 +26,7 @@ from shop.graphql.filters import (
   StoreFilter,
   StoreCategoryFilter,
   StoreProductFilter,
+  StoreSectionFilter,
 )
 
 class ProductNode(IsAuthenticated, DjangoObjectType):
@@ -66,30 +68,10 @@ class ProductUnitNode(IsAuthenticated, DjangoObjectType):
     connection_class = ConnectionWithTotalCount
 
 
-class ListProductNode(IsAuthenticated, DjangoObjectType):
-  class Meta:
-    model = ListProduct
-    fields = ['list', 'product', 'quantity_have', 'quantity_needed', 'unit', 'created_at', 'updated_at']
-    filterset_class = ListProductFilter
-    interfaces = (graphene.relay.Node, )
-    convert_choices_to_enum = False
-    connection_class = ConnectionWithTotalCount
-
-
-class StoreProductNode(IsAuthenticated, DjangoObjectType):
-  class Meta:
-    model = StoreProduct
-    fields = ['store', 'product', 'price', 'section', 'aisle', 'created_at', 'updated_at']
-    filterset_class = StoreProductFilter
-    interfaces = (graphene.relay.Node, )
-    convert_choices_to_enum = False
-    connection_class = ConnectionWithTotalCount
-
-
 class StoreNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = Store
-    fields = ['uid', 'name', 'categories', 'products', 'created_at', 'updated_at']
+    fields = ['uid', 'name', 'categories', 'products', 'sections', 'created_at', 'updated_at']
     filterset_class = StoreFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
@@ -106,6 +88,26 @@ class StoreCategoryNode(IsAuthenticated, DjangoObjectType):
     model = StoreCategory
     fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
     filterset_class = StoreCategoryFilter
+    interfaces = (graphene.relay.Node, )
+    convert_choices_to_enum = False
+    connection_class = ConnectionWithTotalCount
+
+
+class StoreSectionNode(IsAuthenticated, DjangoObjectType):
+  class Meta:
+    model = StoreSection
+    fields = ['uid', 'name', 'section_type', 'created_at', 'updated_at']
+    filterset_class = StoreSectionFilter
+    interfaces = (graphene.relay.Node, )
+    convert_choices_to_enum = False
+    connection_class = ConnectionWithTotalCount
+
+
+class StoreProductNode(IsAuthenticated, DjangoObjectType):
+  class Meta:
+    model = StoreProduct
+    fields = ['store', 'product', 'price', 'section', 'created_at', 'updated_at']
+    filterset_class = StoreProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount
@@ -131,6 +133,16 @@ class ListCategoryNode(IsAuthenticated, DjangoObjectType):
     model = ListCategory
     fields = ['uid', 'name', 'color', 'created_at', 'updated_at']
     filterset_class = ListCategoryFilter
+    interfaces = (graphene.relay.Node, )
+    convert_choices_to_enum = False
+    connection_class = ConnectionWithTotalCount
+
+
+class ListProductNode(IsAuthenticated, DjangoObjectType):
+  class Meta:
+    model = ListProduct
+    fields = ['list', 'product', 'quantity_have', 'quantity_needed', 'unit', 'created_at', 'updated_at']
+    filterset_class = ListProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False
     connection_class = ConnectionWithTotalCount

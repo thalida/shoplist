@@ -5,24 +5,25 @@ from graphene_django.filter import DjangoFilterConnectionField
 from api.graphql import RelayUUIDNode
 
 from shop.graphql.nodes import (
-    ProductCategoryNode,
-    ListCategoryNode,
-    StoreCategoryNode,
-    ProductUnitNode,
-    ProductNode,
-    StoreNode,
     ListNode,
+    ListCategoryNode,
+    ProductNode,
+    ProductCategoryNode,
+    ProductUnitNode,
+    StoreNode,
+    StoreCategoryNode,
+    StoreSectionNode,
 )
 
 class ShopQuery(graphene.ObjectType):
-    product = RelayUUIDNode.Field(ProductNode)
-    all_products = DjangoFilterConnectionField(ProductNode)
-
-    store = RelayUUIDNode.Field(StoreNode)
-    all_stores = DjangoFilterConnectionField(StoreNode)
-
     list = RelayUUIDNode.Field(ListNode)
     all_lists = DjangoFilterConnectionField(ListNode)
+
+    list_category = RelayUUIDNode.Field(ListCategoryNode)
+    all_list_categories = DjangoFilterConnectionField(ListCategoryNode)
+
+    product = RelayUUIDNode.Field(ProductNode)
+    all_products = DjangoFilterConnectionField(ProductNode)
 
     product_category = RelayUUIDNode.Field(ProductCategoryNode)
     all_product_categories = DjangoFilterConnectionField(ProductCategoryNode)
@@ -30,11 +31,14 @@ class ShopQuery(graphene.ObjectType):
     product_unit = RelayUUIDNode.Field(ProductUnitNode)
     all_product_units = DjangoFilterConnectionField(ProductUnitNode)
 
-    list_category = RelayUUIDNode.Field(ListCategoryNode)
-    all_list_categories = DjangoFilterConnectionField(ListCategoryNode)
+    store = RelayUUIDNode.Field(StoreNode)
+    all_stores = DjangoFilterConnectionField(StoreNode)
 
     store_category = RelayUUIDNode.Field(StoreCategoryNode)
     all_store_categories = DjangoFilterConnectionField(StoreCategoryNode)
+
+    store_section = RelayUUIDNode.Field(StoreSectionNode)
+    all_store_sections = DjangoFilterConnectionField(StoreSectionNode)
 
 
 

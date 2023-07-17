@@ -13,35 +13,30 @@ import ComboboxFilter from '@/components/ComboboxFilter.vue';
 import { formatOrderByArgs, toggleOrderByField } from '@/utils/api';
 import { useProductStore } from '@/stores/product';
 import { useListStore } from '@/stores/list';
+import { useStoreStore } from '@/stores/store';
 
 const router = useRouter();
 const route = useRoute();
+const listStore = useListStore();
+const storeStore = useStoreStore();
+const productStore = useProductStore();
+
 const isDetailRoute = computed(() => route.matched.some((m) => m.name === PRODUCT_DETAIL_ROUTE));
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
-const listStore = useListStore();
-const productStore = useProductStore();
-
-const products = computed(() => productStore.pageItems);
-const isLoading = computed(() => productStore.isLoading);
-const apiErrors = computed(() => productStore.errors);
-const pageInfo = computed(() => productStore.pageInfo);
-const orderBy = computed(() => productStore.orderBy);
-const filterBy = computed(() => productStore.filterBy);
-
 const headers: IDataTableHeader[] = [
-{ label: "Name", key: "name", isSortable: true, isFilterable: false },
-{ label: "Category", key: "categories", isSortable: false, isFilterable: true },
-{ label: "List", key: "lists", isSortable: false, isFilterable: true },
-{ label: "Store", key: "stores", isSortable: false, isFilterable: true },
+  { label: "Name", key: "name", isSortable: true, isFilterable: false },
+  { label: "Category", key: "categories", isSortable: false, isFilterable: true },
+  { label: "List", key: "lists", isSortable: false, isFilterable: true },
+  { label: "Store", key: "stores", isSortable: false, isFilterable: true },
 ];
 const pageSize = 3;
 const searchQuery = ref('');
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
-  const orderByStr = formatOrderByArgs(orderBy.value, { category: 'category__name' });
+  const orderByStr = formatOrderByArgs(productStore.orderBy, { category: 'category__name' });
 
   productStore.fetch({
     first,
@@ -49,28 +44,37 @@ async function loadData({ first, last, after, before }: { first?: number, last?:
     after,
     before,
     orderBy: orderByStr,
-    ...filterBy.value,
+    ...productStore.filterBy,
   });
 }
 
 const debouncedLoadData = debounce(loadData, 300);
 
+function handleClickRowItem(item: Record<string, any>) {
+  router.push({
+    name: PRODUCT_DETAIL_ROUTE,
+    params: {
+      productId: item.uid,
+    },
+  });
+}
+
 function handleNextPage(){
   loadData({
     first: pageSize,
-    after: pageInfo.value.endCursor || undefined,
+    after: productStore.pageInfo.endCursor || undefined,
   });
 }
 
 function handlePrevPage(){
   loadData({
     last: pageSize,
-    before: pageInfo.value.startCursor || undefined,
+    before: productStore.pageInfo.startCursor || undefined,
   });
 }
 
 function handleUpdateOrderBy(header: IDataTableHeader) {
-  const newOrderBy = toggleOrderByField(orderBy.value, header.key);
+  const newOrderBy = toggleOrderByField(productStore.orderBy, header.key);
   productStore.setOrderBy(newOrderBy);
   debouncedLoadData({
     first: pageSize,
@@ -80,30 +84,11 @@ function handleUpdateOrderBy(header: IDataTableHeader) {
 function handleUpdateSearchQuery(newSearchQuery: string) {
   searchQuery.value = newSearchQuery;
   productStore.setFilterBy({
-    ...filterBy.value,
+    ...productStore.filterBy,
     name_Icontains: searchQuery.value,
   });
   debouncedLoadData({
     first: pageSize,
-  });
-}
-
-onMounted(async () => {
-  await Promise.all([
-    productStore.getCategories(),
-    listStore.fetch(),
-  ]);
-  loadData({
-    first: pageSize,
-  })
-});
-
-function handleClickRowItem(item: Record<string, any>) {
-  router.push({
-    name: PRODUCT_DETAIL_ROUTE,
-    params: {
-      productId: item.uid,
-    },
   });
 }
 
@@ -116,26 +101,46 @@ function handleDetailPanelClose() {
   });
 }
 
-function handleSelectedCategoriesChanged(selectedItems: string[]) {
+// function handleSelectedCategoriesChanged(field, selectedItems: string[]) {
+//   productStore.setFilterBy({
+//     ...productStore.filterBy,
+//     categories: selectedItems,
+//   });
+//   debouncedLoadData({
+//     first: pageSize,
+//   });
+// }
+
+// function handleSelectedListsChanged(field, selectedItems: string[]) {
+//   productStore.setFilterBy({
+//     ...productStore.filterBy,
+//     lists: selectedItems,
+//   });
+//   debouncedLoadData({
+//     first: pageSize,
+//   });
+// }
+
+function handleFiltersChanged(field: string, selectedItems: string[]) {
   productStore.setFilterBy({
-    ...filterBy.value,
-    categories: selectedItems,
+    ...productStore.filterBy,
+    [field]: selectedItems,
   });
   debouncedLoadData({
     first: pageSize,
   });
 }
 
-function handleSelectedListsChanged(selectedItems: string[]) {
-  console.log('handleSelectedListsChanged', selectedItems)
-  productStore.setFilterBy({
-    ...filterBy.value,
-    lists: selectedItems,
-  });
-  debouncedLoadData({
+onMounted(async () => {
+  await Promise.all([
+    storeStore.fetch(),
+    listStore.fetch(),
+    productStore.getCategories(),
+  ]);
+  loadData({
     first: pageSize,
-  });
-}
+  })
+});
 </script>
 
 <template>
@@ -155,7 +160,7 @@ function handleSelectedListsChanged(selectedItems: string[]) {
         </button>
       </div>
 
-      <div v-if="apiErrors" class="rounded-md bg-red-50 p-4">
+      <div v-if="productStore.errors" class="rounded-md bg-red-50 p-4">
         <div class="flex">
           <div class="flex-shrink-0">
             <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
@@ -164,7 +169,7 @@ function handleSelectedListsChanged(selectedItems: string[]) {
             <h3 class="text-sm font-medium text-red-800">There was an error loading products</h3>
             <div class="mt-2 text-sm text-red-700">
               <ul role="list" class="list-disc space-y-1 pl-5">
-                <li v-for="(error, errorKey) in apiErrors" :key="errorKey">
+                <li v-for="(error, errorKey) in productStore.errors" :key="errorKey">
                   <ul>
                     <li v-for="(errorItem, errorItemKey) in error" :key="errorItemKey">
                       {{ errorItem }}
@@ -178,12 +183,12 @@ function handleSelectedListsChanged(selectedItems: string[]) {
       </div>
 
       <DataTable
-        :isLoading="isLoading"
+        :isLoading="productStore.isLoading"
         :headers="headers"
-        :items="products"
-        :pageInfo="pageInfo"
-        :orderBy="orderBy"
-        :filterBy="filterBy"
+        :items="productStore.pageItems"
+        :pageInfo="productStore.pageInfo"
+        :orderBy="productStore.orderBy"
+        :filterBy="productStore.filterBy"
         :showSearch="true"
         :searchQuery="searchQuery"
         :searchPlaceholder="'Search by product name'"
@@ -205,22 +210,22 @@ function handleSelectedListsChanged(selectedItems: string[]) {
         </template>
         <template #filter-status-categories>
           <span
-            v-if="filterBy.categories?.length > 0"
+            v-if="productStore.filterBy.categories?.length > 0"
             class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
           >
-            {{ filterBy.categories?.length }}
+            {{ productStore.filterBy.categories?.length }}
           </span>
         </template>
         <template #filter-panel-categories>
           <ComboboxFilter
             ref="categoriesComboxFilter"
             :items="productStore.categories"
-            :selected="filterBy.categories"
+            :selected="productStore.filterBy.categories"
             labelKey="name"
             valueKey="uid"
             idKey="uid"
             inputPlaceholder="Search categories"
-            @update:selected="handleSelectedCategoriesChanged"
+            @update:selected="(items) => handleFiltersChanged('categories', items)"
           >
             <template #selected="{ selected }">
               <ColorBadge
@@ -238,16 +243,34 @@ function handleSelectedListsChanged(selectedItems: string[]) {
           <ComboboxFilter
             ref="listsComboxFilter"
             :items="Object.values(listStore.collection)"
-            :selected="filterBy.lists"
+            :selected="productStore.filterBy.lists"
             labelKey="name"
             valueKey="uid"
             idKey="uid"
             inputPlaceholder="Search lists"
-            @update:selected="handleSelectedListsChanged"
+            @update:selected="(items) => handleFiltersChanged('lists', items)"
           >
             <template #selected="{ selected }">
               <div v-for="itemId in selected" :key="itemId">
                 {{ listStore.collection[itemId].name }}
+              </div>
+            </template>
+          </ComboboxFilter>
+        </template>
+        <template #filter-panel-stores>
+          <ComboboxFilter
+            ref="listsComboxFilter"
+            :items="Object.values(storeStore.collection)"
+            :selected="productStore.filterBy.stores"
+            labelKey="name"
+            valueKey="uid"
+            idKey="uid"
+            inputPlaceholder="Search stores"
+            @update:selected="(items) => handleFiltersChanged('stores', items)"
+          >
+            <template #selected="{ selected }">
+              <div v-for="itemId in selected" :key="itemId">
+                {{ storeStore.collection[itemId].name }}
               </div>
             </template>
           </ComboboxFilter>

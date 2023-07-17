@@ -23,6 +23,11 @@ query AllProducts($first: Int, $after: String, $last: Int, $before: String, $ord
         stores {
           edges {
             node {
+              price
+              section {
+                uid
+                name
+              }
               store {
                 uid
                 name
