@@ -219,6 +219,14 @@ onMounted(async () => {
             </template>
           </ComboboxFilter>
         </template>
+        <template #filter-status-lists>
+          <span
+            v-if="productStore.filterBy.lists?.length > 0"
+            class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+          >
+            {{ productStore.filterBy.lists?.length }}
+          </span>
+        </template>
         <template #filter-panel-lists>
           <ComboboxFilter
             ref="listsComboxFilter"
@@ -236,6 +244,14 @@ onMounted(async () => {
               </div>
             </template>
           </ComboboxFilter>
+        </template>
+        <template #filter-status-stores>
+          <span
+            v-if="productStore.filterBy.stores?.length > 0"
+            class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+          >
+            {{ productStore.filterBy.stores?.length }}
+          </span>
         </template>
         <template #filter-panel-stores>
           <ComboboxFilter
