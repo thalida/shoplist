@@ -29,13 +29,13 @@ class ProductFilter(FilterSet):
   stores = filters.ModelMultipleChoiceFilter(
       field_name='stores',
       to_field_name='store_id',
-      queryset=StoreProduct.objects.all(),
+      queryset=Store.objects.all(),
   )
 
   lists = filters.ModelMultipleChoiceFilter(
       field_name='lists',
-      to_field_name='list_id',
-      queryset=ListProduct.objects.all(),
+      to_field_name='uid',
+      queryset=List.objects.all(),
   )
 
   order_by = OrderingFilter(
@@ -74,7 +74,7 @@ class ListFilter(FilterSet):
   products = filters.ModelMultipleChoiceFilter(
       field_name='products',
       to_field_name='product_id',
-      queryset=ListProduct.objects.all(),
+      queryset=Product.objects.all(),
   )
 
   order_by = OrderingFilter(
@@ -129,7 +129,7 @@ class StoreFilter(FilterSet):
   products = filters.ModelMultipleChoiceFilter(
       field_name='products',
       to_field_name='product_id',
-      queryset=StoreProduct.objects.all(),
+      queryset=Product.objects.all(),
   )
 
   order_by = OrderingFilter(
