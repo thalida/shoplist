@@ -172,7 +172,9 @@ function handleSearchQueryChange(e: Event) {
             v-for="(item, itemIdx) in items"
             :key="itemIdx"
             class="group cursor-pointer"
+            tabindex="0"
             @click="emit('clickRowItem', item)"
+            @keyup.enter="emit('clickRowItem', item)"
           >
             <td
               v-for="(header, headerIdx) in headers" :key="header.key"
@@ -195,21 +197,27 @@ function handleSearchQueryChange(e: Event) {
       <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
         <span class="font-medium">{{ pageInfo.totalCount }}</span> result{{ pageInfo.totalCount > 1 ? 's' : '' }}
       </p>
-      <div v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="flex flex-1 justify-end">
+
+      <span v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="isolate inline-flex rounded-md shadow-sm">
         <button
+          type="button"
+          class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
           @click="emit('prevPage', pageInfo)"
           :disabled="!pageInfo.hasPreviousPage"
-          class="relative inline-flex flex-row justify-center items-center rounded-md bg-white p-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
+        >
+          <span class="sr-only">Previous</span>
           <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
         </button>
         <button
+          type="button"
+          class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
           @click="emit('nextPage', pageInfo)"
           :disabled="!pageInfo.hasNextPage"
-          class="relative ml-3 inline-flex flex-row justify-center items-center rounded-md bg-white p-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0 disabled:opacity-50">
+        >
+          <span class="sr-only">Next</span>
           <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
         </button>
-      </div>
+      </span>
     </nav>
   </div>
 </template>
-@/types/api

@@ -101,26 +101,6 @@ function handleDetailPanelClose() {
   });
 }
 
-// function handleSelectedCategoriesChanged(field, selectedItems: string[]) {
-//   productStore.setFilterBy({
-//     ...productStore.filterBy,
-//     categories: selectedItems,
-//   });
-//   debouncedLoadData({
-//     first: pageSize,
-//   });
-// }
-
-// function handleSelectedListsChanged(field, selectedItems: string[]) {
-//   productStore.setFilterBy({
-//     ...productStore.filterBy,
-//     lists: selectedItems,
-//   });
-//   debouncedLoadData({
-//     first: pageSize,
-//   });
-// }
-
 function handleFiltersChanged(field: string, selectedItems: string[]) {
   productStore.setFilterBy({
     ...productStore.filterBy,
@@ -294,13 +274,3 @@ onMounted(async () => {
     </TransitionRoot>
   </AppMain>
 </template>
-
-<style scoped>
-.filter-menu {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-}
-</style>
