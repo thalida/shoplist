@@ -3,6 +3,7 @@ import SigninView from '../views/SigninView.vue'
 import { useUserStore } from '@/stores/user'
 import RouterOnlyView from '@/views/RouterOnlyView.vue'
 import ListsView from '@/views/ListsView.vue'
+import StoresView from '@/views/StoresView.vue'
 
 export const SIGNIN_ROUTE = 'Signin'
 export const LISTS_ROUTE = 'List'
@@ -10,6 +11,7 @@ export const LIST_DETAIL_ROUTE = 'ListDetail'
 export const PRODUCTS_ROUTE = 'Product'
 export const PRODUCT_DETAIL_ROUTE = 'ProductDetail'
 export const STORES_ROUTE = 'Store'
+export const STORE_DETAIL_ROUTE = 'StoreDetail'
 
 export const HOME_ROUTE = LISTS_ROUTE
 
@@ -64,11 +66,24 @@ const router = createRouter({
     },
     {
       path: '/stores',
-      name: STORES_ROUTE,
+      component: RouterOnlyView,
       meta: {
         requiresAuth: true,
       },
-      component: () => import('../views/StoresView.vue')
+      children: [
+        {
+          path: '',
+          name: STORES_ROUTE,
+          component: StoresView,
+          props: true,
+        },
+        {
+          path: ':storeId',
+          name: STORE_DETAIL_ROUTE,
+          component: () => import('../views/StoreDetailView.vue'),
+          props: true,
+        },
+      ],
     },
   ]
 })

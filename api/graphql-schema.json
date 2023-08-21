@@ -1604,7 +1604,7 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "quantityNeeded",
+                  "name": "quantityNeed",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",
@@ -2279,7 +2279,7 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
-              "name": "quantityNeeded",
+              "name": "quantityNeed",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -2601,7 +2601,7 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "quantityNeeded",
+                  "name": "quantityNeed",
                   "type": {
                     "kind": "SCALAR",
                     "name": "Int",

@@ -87,7 +87,6 @@ export const useProductStore = defineStore('product', () => {
     const { data, error } = await useQuery({
       query: AllProductsDocument,
       variables: args,
-      cachePolicy: "network-only"
     });
 
     if (error.value) {
@@ -127,7 +126,7 @@ export const useProductStore = defineStore('product', () => {
     isLoading.value = false;
   }
 
-  async function getCategories() {
+  async function fetchCategories() {
     const { data } = await useQuery({
       query: AllProductCategoriesDocument,
       variables: {
@@ -162,7 +161,7 @@ export const useProductStore = defineStore('product', () => {
     fetch,
 
     categories,
-    getCategories,
+    fetchCategories,
     getCategoryById,
 
     setOrderBy,

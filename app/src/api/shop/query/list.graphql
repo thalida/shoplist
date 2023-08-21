@@ -15,7 +15,7 @@ query List($uid: ID!) {
       edges {
         node {
           quantityHave
-          quantityNeeded
+          quantityNeed
           unit {
             name
           }

@@ -17,8 +17,15 @@ from .models import (
     ListProduct,
 )
 
+class BaseCategoryAdmin(ModelAdmin):
+    """
+    BaseCategory admin
+    """
+    list_display = ('name', 'color')
+    list_editable = ('color',)
+
 @admin.register(ProductCategory)
-class ProductCategoryAdmin(ModelAdmin):
+class ProductCategoryAdmin(BaseCategoryAdmin):
     """
     ProductCategory admin
     """
@@ -76,7 +83,7 @@ class StoreSectionInline(TabularInline):
 
 
 @admin.register(StoreCategory)
-class StoreCategoryAdmin(ModelAdmin):
+class StoreCategoryAdmin(BaseCategoryAdmin):
     """
     StoreCategory admin
     """
@@ -88,8 +95,9 @@ class StoreSectionAdmin(ModelAdmin):
     """
     StoreSection admin
     """
-    list_display = ('name', 'section_type', 'store')
+    list_display = ('name', 'section_type', 'store', 'description')
     list_filter = ('section_type', 'store')
+
 
 
 @admin.register(Store)
@@ -112,7 +120,7 @@ class ListProductInline(TabularInline):
 
 
 @admin.register(ListCategory)
-class ListCategoryAdmin(ModelAdmin):
+class ListCategoryAdmin(BaseCategoryAdmin):
     """
     ListCategory admin
     """

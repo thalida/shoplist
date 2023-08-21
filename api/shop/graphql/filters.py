@@ -90,12 +90,12 @@ class ListProductFilter(FilterSet):
       'list': ['exact'],
       'product': ['exact'],
       'quantity_have': ['exact'],
-      'quantity_needed': ['exact'],
+      'quantity_need': ['exact'],
       'unit': ['exact'],
     }
 
   order_by = OrderingFilter(
-    fields=['list', 'product', 'quantity_have', 'quantity_needed', 'unit']
+    fields=['list', 'product', 'quantity_have', 'quantity_need', 'unit']
   )
 
 

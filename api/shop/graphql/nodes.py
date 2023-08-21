@@ -141,7 +141,7 @@ class ListCategoryNode(IsAuthenticated, DjangoObjectType):
 class ListProductNode(IsAuthenticated, DjangoObjectType):
   class Meta:
     model = ListProduct
-    fields = ['list', 'product', 'quantity_have', 'quantity_needed', 'unit', 'created_at', 'updated_at']
+    fields = ['list', 'product', 'quantity_have', 'quantity_need', 'unit', 'created_at', 'updated_at']
     filterset_class = ListProductFilter
     interfaces = (graphene.relay.Node, )
     convert_choices_to_enum = False

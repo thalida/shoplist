@@ -24,7 +24,7 @@ query AllLists($first: Int, $after: String, $last: Int, $before: String, $orderB
           edges {
             node {
               quantityHave
-              quantityNeeded
+              quantityNeed
               unit {
                 name
               }

@@ -42,7 +42,7 @@ class ListProduct(models.Model):
     list = models.ForeignKey('List', on_delete=models.CASCADE)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     quantity_have = models.IntegerField(default=0)
-    quantity_needed = models.IntegerField(default=1)
+    quantity_need = models.IntegerField(default=1)
     unit = models.ForeignKey('ProductUnit', blank=True, null=True, default=None, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -148,6 +148,7 @@ class StoreSection(models.Model):
 
     store = models.ForeignKey('Store', on_delete=models.CASCADE, related_name='sections')
     name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True, default=None)
     section_type = models.CharField(max_length=10, choices=SectionTypeChoice.choices, default=SectionTypeChoice.AISLE)
 
     def __str__(self):

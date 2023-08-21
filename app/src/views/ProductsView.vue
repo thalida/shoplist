@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { XCircleIcon, PlusIcon } from 'lucide-vue-next';
 import { debounce } from 'lodash';
 import { TransitionRoot, TransitionChild } from '@headlessui/vue';
-import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE } from '@/router';
+import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE, LIST_DETAIL_ROUTE, STORE_DETAIL_ROUTE } from '@/router';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import AppMain from '@/components/AppMain.vue';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
@@ -25,14 +25,15 @@ const isDetailRoute = computed(() => route.matched.some((m) => m.name === PRODUC
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
+const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const headers: IDataTableHeader[] = [
   { label: "Name", key: "name", isSortable: true, isFilterable: false },
   { label: "Category", key: "categories", isSortable: false, isFilterable: true },
-  { label: "List", key: "lists", isSortable: false, isFilterable: true },
-  { label: "Store", key: "stores", isSortable: false, isFilterable: true },
+  { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
+  { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
 ];
-const pageSize = 3;
+const pageSize = 50;
 const searchQuery = ref('');
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
@@ -92,6 +93,15 @@ function handleUpdateSearchQuery(newSearchQuery: string) {
   });
 }
 
+function handleAddBtnClick() {
+  router.push({
+    name: PRODUCT_DETAIL_ROUTE,
+    params: {
+      productId: 'new',
+    },
+  });
+}
+
 function handleDetailPanelClose() {
   router.push({
     name: PRODUCTS_ROUTE,
@@ -115,7 +125,7 @@ onMounted(async () => {
   await Promise.all([
     storeStore.fetch(),
     listStore.fetch(),
-    productStore.getCategories(),
+    productStore.fetchCategories(),
   ]);
   loadData({
     first: pageSize,
@@ -132,6 +142,7 @@ onMounted(async () => {
         <button
           type="button"
           class="flex flex-row space-x-2 items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          @click="handleAddBtnClick"
         >
           <PlusIcon
             class="h-4 w-4"
@@ -197,27 +208,55 @@ onMounted(async () => {
           </span>
         </template>
         <template #filter-panel-categories>
-          <ComboboxFilter
-            ref="categoriesComboxFilter"
-            :items="productStore.categories"
-            :selected="productStore.filterBy.categories"
-            labelKey="name"
-            valueKey="uid"
-            idKey="uid"
-            inputPlaceholder="Search categories"
-            @update:selected="(items) => handleFiltersChanged('categories', items)"
-          >
-            <template #selected="{ selected }">
-              <ColorBadge
-                v-for="categoryUid in selected"
-                :key="categoryUid"
-                :label="productStore.getCategoryById(categoryUid)?.name"
-                :color="productStore.getCategoryById(categoryUid)?.color"
-                :showRemoveButton="true"
-                @remove="categoriesComboxFilter?.removeItem(categoryUid)"
-              />
-            </template>
-          </ComboboxFilter>
+          <div class="p-4">
+            <ComboboxFilter
+              ref="categoriesComboxFilter"
+              :items="productStore.categories"
+              :selected="productStore.filterBy.categories"
+              labelKey="name"
+              valueKey="uid"
+              idKey="uid"
+              inputPlaceholder="Search categories"
+              @update:selected="(items) => handleFiltersChanged('categories', items)"
+            >
+              <template #selected="{ selected }">
+                <div class="py-1">
+                  <ColorBadge
+                    v-for="categoryUid in selected"
+                    :key="categoryUid"
+                    :label="productStore.getCategoryById(categoryUid)?.name"
+                    :color="productStore.getCategoryById(categoryUid)?.color"
+                    :showRemoveButton="true"
+                    @remove="categoriesComboxFilter?.removeItem(categoryUid)"
+                  />
+                </div>
+              </template>
+            </ComboboxFilter>
+          </div>
+        </template>
+        <template #item-lists="{ item }">
+          <div class="flex flex-row flex-wrap gap-1">
+              <RouterLink
+                v-for="listProduct in item.lists"
+                custom
+                v-slot="{ href, navigate }"
+                :key="listProduct.list.uid"
+                :to="{
+                  name: LIST_DETAIL_ROUTE,
+                  params: {
+                    listId: listProduct.list.uid,
+                  },
+                }"
+              >
+                <a
+                :href="href"
+                @click.stop="navigate"
+                class="rounded bg-indigo-50 px-2 py-1 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100"
+                >
+                  {{ listProduct.list.name }}
+                </a>
+              </RouterLink>
+          </div>
         </template>
         <template #filter-status-lists>
           <span
@@ -228,22 +267,50 @@ onMounted(async () => {
           </span>
         </template>
         <template #filter-panel-lists>
-          <ComboboxFilter
-            ref="listsComboxFilter"
-            :items="Object.values(listStore.collection)"
-            :selected="productStore.filterBy.lists"
-            labelKey="name"
-            valueKey="uid"
-            idKey="uid"
-            inputPlaceholder="Search lists"
-            @update:selected="(items) => handleFiltersChanged('lists', items)"
-          >
-            <template #selected="{ selected }">
-              <div v-for="itemId in selected" :key="itemId">
-                {{ listStore.collection[itemId].name }}
-              </div>
-            </template>
-          </ComboboxFilter>
+          <div class="p-4">
+            <ComboboxFilter
+              ref="listsComboxFilter"
+              :items="Object.values(listStore.collection)"
+              :selected="productStore.filterBy.lists"
+              labelKey="name"
+              valueKey="uid"
+              idKey="uid"
+              inputPlaceholder="Search lists"
+              @update:selected="(items) => handleFiltersChanged('lists', items)"
+            >
+              <template #selected="{ selected }">
+                <div v-for="itemId in selected" :key="itemId">
+                  {{ listStore.collection[itemId].name }}
+                </div>
+              </template>
+            </ComboboxFilter>
+          </div>
+        </template>
+
+
+        <template #item-stores="{ item }">
+          <div class="flex flex-row flex-wrap gap-1">
+              <RouterLink
+                v-for="storeProduct in item.stores"
+                custom
+                v-slot="{ href, navigate }"
+                :key="storeProduct.store.uid"
+                :to="{
+                  name: STORE_DETAIL_ROUTE,
+                  params: {
+                    storeId: storeProduct.store.uid,
+                  },
+                }"
+              >
+                <a
+                :href="href"
+                @click.stop="navigate"
+                class="rounded bg-indigo-50 px-2 py-1 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100"
+                >
+                  {{ storeProduct.store.name }}
+                </a>
+              </RouterLink>
+          </div>
         </template>
         <template #filter-status-stores>
           <span
@@ -254,22 +321,24 @@ onMounted(async () => {
           </span>
         </template>
         <template #filter-panel-stores>
-          <ComboboxFilter
-            ref="listsComboxFilter"
-            :items="Object.values(storeStore.collection)"
-            :selected="productStore.filterBy.stores"
-            labelKey="name"
-            valueKey="uid"
-            idKey="uid"
-            inputPlaceholder="Search stores"
-            @update:selected="(items) => handleFiltersChanged('stores', items)"
-          >
-            <template #selected="{ selected }">
-              <div v-for="itemId in selected" :key="itemId">
-                {{ storeStore.collection[itemId].name }}
-              </div>
-            </template>
-          </ComboboxFilter>
+          <div class="p-4">
+            <ComboboxFilter
+              ref="storesComboxFilter"
+              :items="Object.values(storeStore.collection)"
+              :selected="productStore.filterBy.stores"
+              labelKey="name"
+              valueKey="uid"
+              idKey="uid"
+              inputPlaceholder="Search stores"
+              @update:selected="(items) => handleFiltersChanged('stores', items)"
+            >
+              <template #selected="{ selected }">
+                <div v-for="itemId in selected" :key="itemId">
+                  {{ storeStore.collection[itemId].name }}
+                </div>
+              </template>
+            </ComboboxFilter>
+          </div>
         </template>
       </DataTable>
     </div>

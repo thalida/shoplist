@@ -24,8 +24,9 @@ const emit = defineEmits<{
   <div
     class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-sm font-medium"
     :class="{
-      'bg-white text-gray-600 ring-1 ring-gray-300': color === 'white',
-      'bg-gray-100 text-gray-600': color === 'gray',
+      'bg-white text-gray-600 ring-1 ring-gray-300 ring-inset': color === 'white',
+      'bg-gray-200 text-gray-600': color === 'gray',
+      'bg-orange-100 text-orange-700': color === 'orange',
       'bg-orange-800 text-orange-200': color === 'brown',
       'bg-slate-900 text-white': color === 'black',
       'bg-red-50 text-red-700': color === 'red',
@@ -45,6 +46,7 @@ const emit = defineEmits<{
       class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20"
       :class="{
         'hover:bg-gray-400/40': color === 'white' || color === 'gray',
+        'hover:bg-orange-400/40': color === 'orange',
         'hover:bg-orange-950/40': color === 'brown',
         'hover:bg-slate-400/40': color === 'black',
         'hover:bg-red-400/40': color === 'red',
@@ -62,6 +64,7 @@ const emit = defineEmits<{
         :class="{
           'stroke-gray-600': color === 'white' || color === 'gray',
           'stroke-orange-200': color === 'brown',
+          'stroke-orange-700': color === 'orange',
           'stroke-white': color === 'black',
           'stroke-red-700': color === 'red',
           'stroke-yellow-800': color === 'yellow',

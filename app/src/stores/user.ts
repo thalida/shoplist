@@ -67,7 +67,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function fetchMe() {
-    const { data } = await useQuery({ query: MeDocument, cachePolicy: "network-only" });
+    const { data } = await useQuery({ query: MeDocument });
     if (data.value?.me) {
       const user = data.value.me;
       myId.value = user.uid;

@@ -85,7 +85,6 @@ export const useListStore = defineStore('list', () => {
     const { data, error } = await useQuery({
       query: AllListsDocument,
       variables: args,
-      cachePolicy: "network-only"
     });
 
     if (error.value) {
@@ -125,7 +124,7 @@ export const useListStore = defineStore('list', () => {
     isLoading.value = false;
   }
 
-  async function getCategories() {
+  async function fetchCategories() {
     const { data } = await useQuery({
       query: AllListCategoriesDocument,
       variables: {
@@ -160,7 +159,7 @@ export const useListStore = defineStore('list', () => {
     fetch,
 
     categories,
-    getCategories,
+    fetchCategories,
     getCategoryById,
 
     setOrderBy,
