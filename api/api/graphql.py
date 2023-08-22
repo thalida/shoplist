@@ -10,7 +10,6 @@ class ConnectionWithTotalCount(Connection):
     @staticmethod
     def resolve_total_count(root, info, **kwargs):
         model = root.iterable.model
-        print(model.objects.count())
         return model.objects.count()
 
     @staticmethod

@@ -8,10 +8,16 @@ import {
   AllProductCategoriesDocument,
   CreateProductDocument,
   type CreateProductInput,
+  UpdateProductDocument,
+  type UpdateProductInput,
+  DeleteProductDocument,
+  type DeleteProductInput,
 } from "@/api/gql/graphql";
 import { formatOrderByArgs, humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
 import { cloneDeep } from 'lodash';
+import type { U } from 'vitest/dist/types-198fd1d9.js';
+import type { Update } from 'vite';
 
 export const useProductStore = defineStore('product', () => {
   const collection: Ref<Record<string, any>> = ref({});
@@ -192,10 +198,28 @@ export const useProductStore = defineStore('product', () => {
     collection.value[res.createProduct.product.uid] = res.createProduct.product;
   }
 
-  async function update(uid: string, data: Record<string, any>) {
+  async function update(productData: UpdateProductInput) {
+    const { execute, data } = useMutation(UpdateProductDocument);
+    await execute(productData);
+
+    const res = humanizeGraphQLResponse(data?.value)
+    if (!res) {
+      return;
+    }
+
+    collection.value[res.updateProduct.product.uid] = res.updateProduct.product;
   }
 
-  async function remove(uid: string) {
+  async function remove(productData: DeleteProductInput) {
+    const { execute, data } = useMutation(DeleteProductDocument);
+    await execute(productData);
+
+    const res = humanizeGraphQLResponse(data?.value)
+    if (!res) {
+      return;
+    }
+
+    collection.value[res.deleteProduct.product.uid].isDeleted = true;
   }
 
   return {

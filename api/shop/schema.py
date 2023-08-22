@@ -17,6 +17,8 @@ from shop.graphql.nodes import (
 
 from shop.graphql.mutations import (
     CreateProduct,
+    UpdateProduct,
+    DeleteProduct,
 )
 
 class ShopQuery(graphene.ObjectType):
@@ -48,3 +50,5 @@ class ShopQuery(graphene.ObjectType):
 
 class ShopMutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
+    update_product = UpdateProduct.Field()
+    delete_product = DeleteProduct.Field()

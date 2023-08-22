@@ -55,8 +55,11 @@ function handleProductCancel() {
   handleDetailPanelClose();
 }
 
-function handleProductDelete() {
-  productStore.remove(props.productId);
+async function handleProductDelete() {
+  await productStore.remove({
+    uid: props.productId,
+  });
+  await productStore.refetch();
   handleDetailPanelClose();
 }
 
@@ -64,7 +67,10 @@ async function handleProductSave() {
   if (isCreateMode.value) {
     await productStore.create(product.value)
   } else {
-    await productStore.update(props.productId, product.value);
+    await productStore.update({
+      uid: props.productId,
+      ...product.value,
+    });
   }
 
   console.log('product', product.value, 'before refetch')
