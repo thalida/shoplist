@@ -25,6 +25,8 @@ const storeStore = useStoreStore();
 const productStore = useProductStore();
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
+const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
+const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const product = ref({
   name: '',
@@ -49,6 +51,28 @@ function handleDetailPanelClose() {
   });
 }
 
+function handleProductCancel() {
+  handleDetailPanelClose();
+}
+
+function handleProductDelete() {
+  productStore.remove(props.productId);
+  handleDetailPanelClose();
+}
+
+async function handleProductSave() {
+  if (isCreateMode.value) {
+    await productStore.create(product.value)
+  } else {
+    await productStore.update(props.productId, product.value);
+  }
+
+  console.log('product', product.value, 'before refetch')
+
+  productStore.refetch();
+  handleDetailPanelClose();
+}
+
 function handleFiltersChanged(field: string, selectedItems: string[]) {
   product.value[field] = selectedItems;
 }
@@ -62,6 +86,8 @@ onMounted(async () => {
 
   if (isCreateMode.value) {
     product.value.categories = cloneDeep(productStore.filterBy.categories)
+    product.value.stores = cloneDeep(productStore.filterBy.stores)
+    product.value.lists = cloneDeep(productStore.filterBy.lists)
   } else {
     await productStore.getOrFetch(props.productId);
 
@@ -70,9 +96,10 @@ onMounted(async () => {
     if (dbProduct) {
       product.value = cloneDeep(dbProduct);
       product.value.categories = Object.keys(keyBy(dbProduct.categories, 'uid'));
+      product.value.stores = Object.keys(keyBy(dbProduct.stores, 'store.uid'));
+      product.value.lists = Object.keys(keyBy(dbProduct.lists, 'list.uid'));
     }
   }
-
 });
 </script>
 
@@ -126,26 +153,74 @@ onMounted(async () => {
           </template>
         </ComboboxFilter>
       </div>
+      <div class="space-y-2">
+        <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Stores</label>
+        <ComboboxFilter
+          ref="storesComboxFilter"
+          :items="storeStore.collectionAsArray"
+          :selected="product.stores"
+          labelKey="name"
+          valueKey="uid"
+          idKey="uid"
+          inputPlaceholder="Search stores"
+          @update:selected="(items) => handleFiltersChanged('stores', items)"
+        >
+          <template #selected="{ selected }">
+            <ColorBadge
+              v-for="storeUid in selected"
+              :key="storeUid"
+              :label="storeStore.getById(storeUid)?.name"
+              :color="storeStore.getById(storeUid)?.color"
+              :showRemoveButton="true"
+              @remove="storesComboxFilter?.removeItem(storeUid)"
+            />
+          </template>
+        </ComboboxFilter>
+      </div>
+      <div class="space-y-2">
+        <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Lists</label>
+        <ComboboxFilter
+          ref="listsComboxFilter"
+          :items="listStore.collectionAsArray"
+          :selected="product.lists"
+          labelKey="name"
+          valueKey="uid"
+          idKey="uid"
+          inputPlaceholder="Search lists"
+          @update:selected="(items) => handleFiltersChanged('lists', items)"
+        >
+          <template #selected="{ selected }">
+            <ColorBadge
+              v-for="listUid in selected"
+              :key="listUid"
+              :label="listStore.getById(listUid)?.name"
+              :color="listStore.getById(listUid)?.color"
+              :showRemoveButton="true"
+              @remove="listsComboxFilter?.removeItem(listUid)"
+            />
+          </template>
+        </ComboboxFilter>
+      </div>
     </div>
     <div class="flex flex-shrink-0 justify-end p-4 sm:p-6 border-t border-gray-200 space-x-2">
       <button
         type="button"
         class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-        @click="handleDetailPanelClose"
+        @click="handleProductDelete"
       >
         Delete
       </button>
       <button
         type="button"
         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-        @click="handleDetailPanelClose"
+        @click="handleProductCancel"
       >
         Cancel
       </button>
       <button
         type="submit"
         class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-        @click="handleDetailPanelClose"
+        @click="handleProductSave"
       >
         Save
       </button>

@@ -21,6 +21,7 @@ export const useStoreStore = defineStore('store', () => {
     startCursor: "",
     endCursor: "",
     totalCount: 0,
+    filteredCount: 0,
   });
   const orderBy: Ref<IOrderBy[]> = ref([]);
   const filterBy: Ref<IFilterBy> = ref({
@@ -36,6 +37,9 @@ export const useStoreStore = defineStore('store', () => {
     return activePage;
   });
   const categories: Ref<Record<string, any>[]> = ref([]);
+  const collectionAsArray = computed(() => {
+    return Object.values(collection.value);
+  });
 
 
   function setOrderBy(newOrderBy: IOrderBy[]) {
@@ -97,6 +101,7 @@ export const useStoreStore = defineStore('store', () => {
     errors.value = null;
 
     const totalCount = data?.value?.allStores?.totalCount || 0;
+    const filteredCount = data?.value?.allStores?.filteredCount || 0;
     const pageInfoRes = data?.value?.allStores?.pageInfo;
     const res = humanizeGraphQLResponse(data?.value);
 
@@ -106,6 +111,7 @@ export const useStoreStore = defineStore('store', () => {
       startCursor: pageInfoRes?.startCursor || "",
       endCursor: pageInfoRes?.endCursor || "",
       totalCount,
+      filteredCount,
     }
 
     if (!res) {
@@ -147,6 +153,8 @@ export const useStoreStore = defineStore('store', () => {
 
   return {
     collection,
+    collectionAsArray,
+
     isLoading,
     errors,
     pageItems,

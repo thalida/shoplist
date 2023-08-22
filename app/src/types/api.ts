@@ -3,6 +3,7 @@ import type { CombinedError } from "villus";
 
 export interface IPageInfo extends PageInfo {
   totalCount: number;
+  filteredCount: number;
 }
 
 export interface IFilterBy {

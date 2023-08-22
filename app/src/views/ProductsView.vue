@@ -10,7 +10,7 @@ import AppMain from '@/components/AppMain.vue';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
 import ColorBadge from '@/components/ColorBadge.vue';
 import ComboboxFilter from '@/components/ComboboxFilter.vue';
-import { formatOrderByArgs, toggleOrderByField } from '@/utils/api';
+import { toggleOrderByField } from '@/utils/api';
 import { useProductStore } from '@/stores/product';
 import { useListStore } from '@/stores/list';
 import { useStoreStore } from '@/stores/store';
@@ -30,22 +30,17 @@ const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(
 const headers: IDataTableHeader[] = [
   { label: "Name", key: "name", isSortable: true, isFilterable: false },
   { label: "Category", key: "categories", isSortable: false, isFilterable: true },
-  { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
   { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
+  { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
 ];
-const pageSize = 50;
 const searchQuery = ref('');
 
 async function loadData({ first, last, after, before }: { first?: number, last?: number, after?: string, before?: string }) {
-  const orderByStr = formatOrderByArgs(productStore.orderBy, { category: 'category__name' });
-
   productStore.fetch({
     first,
     last,
     after,
     before,
-    orderBy: orderByStr,
-    ...productStore.filterBy,
   });
 }
 
@@ -62,14 +57,14 @@ function handleClickRowItem(item: Record<string, any>) {
 
 function handleNextPage(){
   loadData({
-    first: pageSize,
+    first: productStore.pageSize,
     after: productStore.pageInfo.endCursor || undefined,
   });
 }
 
 function handlePrevPage(){
   loadData({
-    last: pageSize,
+    last: productStore.pageSize,
     before: productStore.pageInfo.startCursor || undefined,
   });
 }
@@ -78,7 +73,7 @@ function handleUpdateOrderBy(header: IDataTableHeader) {
   const newOrderBy = toggleOrderByField(productStore.orderBy, header.key);
   productStore.setOrderBy(newOrderBy);
   debouncedLoadData({
-    first: pageSize,
+    first: productStore.pageSize,
   });
 }
 
@@ -89,7 +84,7 @@ function handleUpdateSearchQuery(newSearchQuery: string) {
     name_Icontains: searchQuery.value,
   });
   debouncedLoadData({
-    first: pageSize,
+    first: productStore.pageSize,
   });
 }
 
@@ -117,7 +112,7 @@ function handleFiltersChanged(field: string, selectedItems: string[]) {
     [field]: selectedItems,
   });
   debouncedLoadData({
-    first: pageSize,
+    first: productStore.pageSize,
   });
 }
 
@@ -128,7 +123,7 @@ onMounted(async () => {
     productStore.fetchCategories(),
   ]);
   loadData({
-    first: pageSize,
+    first: productStore.pageSize,
   })
 });
 </script>
@@ -177,6 +172,7 @@ onMounted(async () => {
         :isLoading="productStore.isLoading"
         :headers="headers"
         :items="productStore.pageItems"
+        :itemLabel="'product'"
         :pageInfo="productStore.pageInfo"
         :orderBy="productStore.orderBy"
         :filterBy="productStore.filterBy"
@@ -220,7 +216,7 @@ onMounted(async () => {
               @update:selected="(items) => handleFiltersChanged('categories', items)"
             >
               <template #selected="{ selected }">
-                <div class="py-1">
+                <div class="flex flex-row flex-wrap gap-1 py-1">
                   <ColorBadge
                     v-for="categoryUid in selected"
                     :key="categoryUid"
@@ -234,58 +230,7 @@ onMounted(async () => {
             </ComboboxFilter>
           </div>
         </template>
-        <template #item-lists="{ item }">
-          <div class="flex flex-row flex-wrap gap-1">
-              <RouterLink
-                v-for="listProduct in item.lists"
-                custom
-                v-slot="{ href, navigate }"
-                :key="listProduct.list.uid"
-                :to="{
-                  name: LIST_DETAIL_ROUTE,
-                  params: {
-                    listId: listProduct.list.uid,
-                  },
-                }"
-              >
-                <a
-                :href="href"
-                @click.stop="navigate"
-                class="rounded bg-indigo-50 px-2 py-1 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100"
-                >
-                  {{ listProduct.list.name }}
-                </a>
-              </RouterLink>
-          </div>
-        </template>
-        <template #filter-status-lists>
-          <span
-            v-if="productStore.filterBy.lists?.length > 0"
-            class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
-          >
-            {{ productStore.filterBy.lists?.length }}
-          </span>
-        </template>
-        <template #filter-panel-lists>
-          <div class="p-4">
-            <ComboboxFilter
-              ref="listsComboxFilter"
-              :items="Object.values(listStore.collection)"
-              :selected="productStore.filterBy.lists"
-              labelKey="name"
-              valueKey="uid"
-              idKey="uid"
-              inputPlaceholder="Search lists"
-              @update:selected="(items) => handleFiltersChanged('lists', items)"
-            >
-              <template #selected="{ selected }">
-                <div v-for="itemId in selected" :key="itemId">
-                  {{ listStore.collection[itemId].name }}
-                </div>
-              </template>
-            </ComboboxFilter>
-          </div>
-        </template>
+
 
 
         <template #item-stores="{ item }">
@@ -333,8 +278,76 @@ onMounted(async () => {
               @update:selected="(items) => handleFiltersChanged('stores', items)"
             >
               <template #selected="{ selected }">
-                <div v-for="itemId in selected" :key="itemId">
-                  {{ storeStore.collection[itemId].name }}
+                <div class="flex flex-row flex-wrap gap-1 py-1">
+                  <ColorBadge
+                    v-for="storeUid in selected"
+                    :key="storeUid"
+                    :label="storeStore.getById(storeUid)?.name"
+                    :color="storeStore.getById(storeUid)?.color"
+                    :showRemoveButton="true"
+                    @remove="storesComboxFilter?.removeItem(storeUid)"
+                  />
+                </div>
+              </template>
+            </ComboboxFilter>
+          </div>
+        </template>
+
+
+        <template #item-lists="{ item }">
+          <div class="flex flex-row flex-wrap gap-1">
+              <RouterLink
+                v-for="listProduct in item.lists"
+                custom
+                v-slot="{ href, navigate }"
+                :key="listProduct.list.uid"
+                :to="{
+                  name: LIST_DETAIL_ROUTE,
+                  params: {
+                    listId: listProduct.list.uid,
+                  },
+                }"
+              >
+                <a
+                :href="href"
+                @click.stop="navigate"
+                class="rounded bg-indigo-50 px-2 py-1 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100"
+                >
+                  {{ listProduct.list.name }}
+                </a>
+              </RouterLink>
+          </div>
+        </template>
+        <template #filter-status-lists>
+          <span
+            v-if="productStore.filterBy.lists?.length > 0"
+            class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
+          >
+            {{ productStore.filterBy.lists?.length }}
+          </span>
+        </template>
+        <template #filter-panel-lists>
+          <div class="p-4">
+            <ComboboxFilter
+              ref="listsComboxFilter"
+              :items="Object.values(listStore.collection)"
+              :selected="productStore.filterBy.lists"
+              labelKey="name"
+              valueKey="uid"
+              idKey="uid"
+              inputPlaceholder="Search lists"
+              @update:selected="(items) => handleFiltersChanged('lists', items)"
+            >
+              <template #selected="{ selected }">
+                <div class="flex flex-row flex-wrap gap-1 py-1">
+                  <ColorBadge
+                    v-for="listUid in selected"
+                    :key="listUid"
+                    :label="listStore.getById(listUid)?.name"
+                    :color="listStore.getById(listUid)?.color"
+                    :showRemoveButton="true"
+                    @remove="listsComboxFilter?.removeItem(listUid)"
+                  />
                 </div>
               </template>
             </ComboboxFilter>

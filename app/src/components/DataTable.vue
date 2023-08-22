@@ -27,6 +27,11 @@ const props = defineProps({
     type: Array as PropType<Record<string, any>[]>,
     required: true,
   },
+  itemLabel: {
+    type: String,
+    required: false,
+    default: 'item',
+  },
   pageInfo: {
     type: Object as PropType<IPageInfo>,
     required: false,
@@ -67,7 +72,16 @@ const emit = defineEmits<{
 }>()
 
 const numHeaders = computed(() => props.headers.length)
-const numItems = computed(() => props.items.length)
+const totalCount = computed(() => {
+  if (!props.pageInfo) {
+    return 0;
+  }
+  return props.pageInfo.totalCount;
+})
+const pageCount = computed(() => {
+  return props.items.length;
+})
+
 const headerItemWidth = computed(() => {
   return `${100 / numHeaders.value}%`
 })
@@ -117,7 +131,7 @@ function handleSearchQueryChange(e: Event) {
     <div
       class="overflow-auto border border-gray-300 rounded-t-lg"
       :class="[
-        { 'rounded-b-lg': isLoading || numItems === 0 },
+        { 'rounded-b-lg': isLoading || totalCount === 0 },
       ]">
       <table class="overflow-hidden min-w-full border-separate border-spacing-0">
         <thead class="bg-slate-100">
@@ -160,10 +174,10 @@ function handleSearchQueryChange(e: Event) {
               </slot>
             </td>
           </tr>
-          <tr v-else-if="numItems === 0">
+          <tr v-else-if="pageCount === 0">
             <td class="px-3 py-4 text-sm text-gray-500 text-center" :colspan="headers.length + 1">
               <slot name="empty">
-                No items found.
+                No {{ itemLabel }}s found.
               </slot>
             </td>
           </tr>
@@ -180,7 +194,7 @@ function handleSearchQueryChange(e: Event) {
               v-for="(header, headerIdx) in headers" :key="header.key"
               :class="[
                 headerIdx === 0 ? 'whitespace-nowrap font-semibold' : '',
-                itemIdx !== numItems - 1 ? 'border-b border-gray-200' : '',
+                itemIdx !== pageCount - 1 ? 'border-b border-gray-200' : '',
                 itemIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50',
                 'px-3 py-4 text-sm text-gray-500 group-hover:bg-slate-100'
               ]"
@@ -193,9 +207,9 @@ function handleSearchQueryChange(e: Event) {
         </tbody>
       </table>
     </div>
-    <nav v-if="pageInfo && numItems > 0" class="flex items-center justify-between rounded-b-lg border-x border-b border-gray-300 bg-white px-4 py-3" aria-label="Pagination">
-      <p v-if="pageInfo.totalCount" class="text-sm text-gray-700">
-        <span class="font-medium">{{ pageInfo.totalCount }}</span> result{{ pageInfo.totalCount > 1 ? 's' : '' }}
+    <nav v-if="pageInfo && totalCount > 0" class="flex items-center justify-between rounded-b-lg border-x border-b border-gray-300 bg-white px-4 py-3" aria-label="Pagination">
+      <p class="text-sm text-gray-700">
+        Showing <span class="font-medium">{{ pageInfo.filteredCount }}</span> of {{ pageInfo.totalCount }} {{ itemLabel }}s
       </p>
 
       <span v-if="pageInfo.hasPreviousPage || pageInfo.hasNextPage" class="isolate inline-flex rounded-md shadow-sm">

@@ -1,13 +1,15 @@
 import { computed, ref, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { useQuery } from "@/api";
+import { useMutation, useQuery } from "@/api";
 import {
   ProductDocument,
   AllProductsDocument,
   type QueryAllProductsArgs,
   AllProductCategoriesDocument,
+  CreateProductDocument,
+  type CreateProductInput,
 } from "@/api/gql/graphql";
-import { humanizeGraphQLResponse } from '@/utils/api';
+import { formatOrderByArgs, humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
 import { cloneDeep } from 'lodash';
 
@@ -15,12 +17,14 @@ export const useProductStore = defineStore('product', () => {
   const collection: Ref<Record<string, any>> = ref({});
   const isLoading: Ref<boolean> = ref(false);
   const errors: Ref<IError | null> = ref(null);
+  const pageSize: Ref<number> = ref(5);
   const pageInfo: Ref<IPageInfo> = ref({
     hasNextPage: false,
     hasPreviousPage: false,
     startCursor: "",
     endCursor: "",
     totalCount: 0,
+    filteredCount: 0,
   });
   const orderBy: Ref<IOrderBy[]> = ref([]);
   const filterBy: Ref<IFilterBy> = ref({
@@ -38,6 +42,7 @@ export const useProductStore = defineStore('product', () => {
     return activePage;
   });
   const categories: Ref<Record<string, any>[]> = ref([]);
+  const lastFetchQuery: Ref<any | null> = ref(null);
 
 
   function setOrderBy(newOrderBy: IOrderBy[]) {
@@ -50,6 +55,10 @@ export const useProductStore = defineStore('product', () => {
 
   function getById(uid: string) {
     return collection.value[uid];
+  }
+
+  function getCategoryById (uid: string) {
+    return categories.value.find((category) => category.uid === uid);
   }
 
   async function getOrFetch(uid: string) {
@@ -84,13 +93,40 @@ export const useProductStore = defineStore('product', () => {
   async function fetch(args?: QueryAllProductsArgs) {
     isLoading.value = true;
 
-    const { data, error } = await useQuery({
+    const orderByStr = formatOrderByArgs(orderBy.value, { category: 'category__name' });
+    const queryArgs: QueryAllProductsArgs = {
+      ...args,
+      orderBy: orderByStr,
+      ...filterBy.value,
+    };
+
+    const { data, error, execute } = await useQuery({
       query: AllProductsDocument,
-      variables: args,
+      variables: queryArgs,
     });
 
-    if (error.value) {
-      errors.value = error.value.response.body.errors
+    processFetchResponse(data.value, error.value);
+
+    isLoading.value = false;
+    lastFetchQuery.value = execute;
+  }
+
+  async function refetch() {
+    if (!lastFetchQuery.value) {
+      return;
+    }
+
+    isLoading.value = true;
+
+    const { data, error } = await lastFetchQuery.value();
+    processFetchResponse(data, error);
+
+    isLoading.value = false;
+  }
+
+  function processFetchResponse(data: any | null, error: any | null) {
+    if (error) {
+      errors.value = error.response.body.errors
       pageOrder.value = [];
       isLoading.value = false;
       return;
@@ -98,9 +134,10 @@ export const useProductStore = defineStore('product', () => {
 
     errors.value = null;
 
-    const totalCount = data?.value?.allProducts?.totalCount || 0;
-    const pageInfoRes = data?.value?.allProducts?.pageInfo;
-    const res = humanizeGraphQLResponse(data?.value);
+    const totalCount = data?.allProducts?.totalCount || 0;
+    const filteredCount = data?.allProducts?.filteredCount || 0;
+    const pageInfoRes = data?.allProducts?.pageInfo;
+    const res = humanizeGraphQLResponse(data);
 
     pageInfo.value = {
       hasPreviousPage: pageInfoRes?.hasPreviousPage || false,
@@ -108,6 +145,7 @@ export const useProductStore = defineStore('product', () => {
       startCursor: pageInfoRes?.startCursor || "",
       endCursor: pageInfoRes?.endCursor || "",
       totalCount,
+      filteredCount,
     }
 
     if (!res) {
@@ -123,7 +161,6 @@ export const useProductStore = defineStore('product', () => {
     }
 
     pageOrder.value = newPageOrder;
-    isLoading.value = false;
   }
 
   async function fetchCategories() {
@@ -143,8 +180,22 @@ export const useProductStore = defineStore('product', () => {
     categories.value = cloneDeep(res.allProductCategories);
   }
 
-  function getCategoryById (uid: string) {
-    return categories.value.find((category) => category.uid === uid);
+  async function create(productData: CreateProductInput) {
+    const { execute, data } = useMutation(CreateProductDocument);
+    await execute(productData)
+
+    const res = humanizeGraphQLResponse(data?.value)
+    if (!res) {
+      return;
+    }
+
+    collection.value[res.createProduct.product.uid] = res.createProduct.product;
+  }
+
+  async function update(uid: string, data: Record<string, any>) {
+  }
+
+  async function remove(uid: string) {
   }
 
   return {
@@ -153,12 +204,14 @@ export const useProductStore = defineStore('product', () => {
     errors,
     pageItems,
     pageOrder,
+    pageSize,
     pageInfo,
     orderBy,
     filterBy,
     getById,
     getOrFetch,
     fetch,
+    refetch,
 
     categories,
     fetchCategories,
@@ -166,5 +219,9 @@ export const useProductStore = defineStore('product', () => {
 
     setOrderBy,
     setFilterBy,
+
+    create,
+    update,
+    remove,
   };
 });

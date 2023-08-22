@@ -15,6 +15,10 @@ from shop.graphql.nodes import (
     StoreSectionNode,
 )
 
+from shop.graphql.mutations import (
+    CreateProduct,
+)
+
 class ShopQuery(graphene.ObjectType):
     list = RelayUUIDNode.Field(ListNode)
     all_lists = DjangoFilterConnectionField(ListNode)
@@ -43,4 +47,4 @@ class ShopQuery(graphene.ObjectType):
 
 
 class ShopMutation(graphene.ObjectType):
-    create_product = graphene.Field(ProductNode)
+    create_product = CreateProduct.Field()

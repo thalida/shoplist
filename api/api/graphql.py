@@ -5,10 +5,18 @@ class ConnectionWithTotalCount(Connection):
         abstract = True
 
     total_count = Int()
+    filtered_count = Int()
 
     @staticmethod
     def resolve_total_count(root, info, **kwargs):
+        model = root.iterable.model
+        print(model.objects.count())
+        return model.objects.count()
+
+    @staticmethod
+    def resolve_filtered_count(root, info, **kwargs):
         return root.length
+
 
 
 class RelayUUIDNode(relay.Node):

@@ -12,6 +12,8 @@ import router from './router'
 const app = createApp(App)
 app.use(createClient({
   url:  import.meta.env.VITE_GRAPHQL_URL,
+  cachePolicy: 'network-only',
+  // cachePolicy: 'cache-and-network',
 }));
 app.use(createPinia())
 app.use(vue3GoogleLogin, {

@@ -1,6 +1,7 @@
 query AllProducts($first: Int, $after: String, $last: Int, $before: String, $orderBy: String, $uid: UUID, $name: String, $name_Icontains: String, $categories: [ID], $stores: [ID], $lists: [ID]) {
   allProducts(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy, uid: $uid, name: $name, name_Icontains: $name_Icontains, categories: $categories, stores: $stores, lists: $lists) {
     totalCount
+    filteredCount
     pageInfo {
       hasNextPage
       hasPreviousPage
