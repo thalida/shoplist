@@ -14,6 +14,12 @@ query Product($uid: ID!) {
     stores {
       edges {
         node {
+          id
+          price
+          section {
+            uid
+            name
+          }
           store {
             uid
             name
@@ -24,6 +30,12 @@ query Product($uid: ID!) {
     lists {
       edges {
         node {
+          id
+          quantityNeed
+          quantityHave
+          unit {
+            name
+          }
           list {
             uid
             name

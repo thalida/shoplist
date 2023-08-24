@@ -1,0 +1,8 @@
+mutation DeleteProduct($uid: UUID!) {
+  deleteProduct(input: { uid: $uid }) {
+    product {
+      uid
+      name
+    }
+  }
+}

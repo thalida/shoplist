@@ -21,6 +21,15 @@ query AllStores($first: Int, $after: String, $last: Int, $before: String, $order
             }
           }
         }
+        sections {
+          edges {
+            node {
+              uid
+              name
+              sectionType
+            }
+          }
+        }
         products {
           edges {
             node {

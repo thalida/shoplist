@@ -5241,7 +5241,7 @@
             {
               "defaultValue": null,
               "description": null,
-              "name": "stores",
+              "name": "lists",
               "type": {
                 "kind": "LIST",
                 "name": null,
@@ -5255,13 +5255,13 @@
             {
               "defaultValue": null,
               "description": null,
-              "name": "lists",
+              "name": "stores",
               "type": {
                 "kind": "LIST",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "UUID",
+                  "name": "JSONString",
                   "ofType": null
                 }
               }
@@ -5280,6 +5280,16 @@
           "interfaces": null,
           "kind": "INPUT_OBJECT",
           "name": "UpdateProductInput",
+          "possibleTypes": null
+        },
+        {
+          "description": "Allows use of a JSON String for input / output from the GraphQL schema.\n\nUse of this type is *not recommended* as you lose the benefits of having a defined, static\nschema (one of the key benefits of GraphQL).",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "SCALAR",
+          "name": "JSONString",
           "possibleTypes": null
         },
         {

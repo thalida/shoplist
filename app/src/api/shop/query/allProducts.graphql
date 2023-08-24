@@ -24,6 +24,7 @@ query AllProducts($first: Int, $after: String, $last: Int, $before: String, $ord
         stores {
           edges {
             node {
+              id
               price
               section {
                 uid
@@ -39,6 +40,7 @@ query AllProducts($first: Int, $after: String, $last: Int, $before: String, $ord
         lists {
           edges {
             node {
+              id
               quantityNeed
               quantityHave
               unit {

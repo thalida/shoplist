@@ -11,6 +11,15 @@ query Store($uid: ID!) {
         }
       }
     }
+    sections {
+      edges {
+        node {
+          uid
+          name
+          sectionType
+        }
+      }
+    }
     products {
       edges {
         node {

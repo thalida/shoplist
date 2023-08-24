@@ -25,14 +25,13 @@ const storeStore = useStoreStore();
 const productStore = useProductStore();
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
-const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const product = ref({
   name: '',
   categories: [] as string[],
   lists: [] as string[],
-  stores: [] as string[],
+  stores: [] as any[],
 });
 
 const title = computed(() => {
@@ -40,6 +39,22 @@ const title = computed(() => {
     return 'New Product';
   }
   return `Edit Product: ${product.value.name}`;
+});
+
+const totalStores = computed(() => {
+  return storeStore.collectionAsArray.length;
+});
+
+const availableStores = computed(() => {
+  return storeStore.collectionAsArray.filter((store) => {
+    return !product.value.stores.find((storeProduct: any) => {
+      return storeProduct.store === store.uid;
+    });
+  });
+});
+
+const hasAllStores = computed(() => {
+  return product.value.stores.length === totalStores.value;
 });
 
 function handleDetailPanelClose() {
@@ -64,16 +79,29 @@ async function handleProductDelete() {
 }
 
 async function handleProductSave() {
+  const formattedProduct = {
+    ...product.value,
+    stores: product.value.stores
+      .filter((storeProduct: any) => {
+        return !storeProduct.shouldRemove && typeof storeProduct.store === 'string';
+      })
+      .map((storeProduct: any) => {
+        return JSON.stringify({
+          store: storeProduct.store,
+          section: storeProduct.section,
+          price: storeProduct.price,
+        });
+      }),
+  };
+
   if (isCreateMode.value) {
-    await productStore.create(product.value)
+    await productStore.create(formattedProduct)
   } else {
     await productStore.update({
       uid: props.productId,
-      ...product.value,
+      ...formattedProduct,
     });
   }
-
-  console.log('product', product.value, 'before refetch')
 
   productStore.refetch();
   handleDetailPanelClose();
@@ -81,6 +109,15 @@ async function handleProductSave() {
 
 function handleFiltersChanged(field: string, selectedItems: string[]) {
   product.value[field] = selectedItems;
+}
+
+function handleAddStore() {
+  product.value.stores.push({
+    store: null,
+    section: null,
+    price: null,
+    shouldRemove: false
+  });
 }
 
 onMounted(async () => {
@@ -92,7 +129,6 @@ onMounted(async () => {
 
   if (isCreateMode.value) {
     product.value.categories = cloneDeep(productStore.filterBy.categories)
-    product.value.stores = cloneDeep(productStore.filterBy.stores)
     product.value.lists = cloneDeep(productStore.filterBy.lists)
   } else {
     await productStore.getOrFetch(props.productId);
@@ -102,8 +138,20 @@ onMounted(async () => {
     if (dbProduct) {
       product.value = cloneDeep(dbProduct);
       product.value.categories = Object.keys(keyBy(dbProduct.categories, 'uid'));
-      product.value.stores = Object.keys(keyBy(dbProduct.stores, 'store.uid'));
       product.value.lists = Object.keys(keyBy(dbProduct.lists, 'list.uid'));
+
+      const productStores = [];
+      for (const storeProduct of dbProduct.stores) {
+        const formattedStoreProudct = {
+          ...storeProduct,
+          store: storeProduct.store.uid,
+          section: storeProduct.section?.uid,
+          shouldRemove: false,
+        };
+
+        productStores.push(formattedStoreProudct)
+      }
+      product.value.stores = productStores;
     }
   }
 });
@@ -160,28 +208,83 @@ onMounted(async () => {
         </ComboboxFilter>
       </div>
       <div class="space-y-2">
-        <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Stores</label>
-        <ComboboxFilter
-          ref="storesComboxFilter"
-          :items="storeStore.collectionAsArray"
-          :selected="product.stores"
-          labelKey="name"
-          valueKey="uid"
-          idKey="uid"
-          inputPlaceholder="Search stores"
-          @update:selected="(items) => handleFiltersChanged('stores', items)"
+        <label class="col-span-3 block text-sm font-medium leading-6 text-gray-700">Related Stores</label>
+        <div class="grid grid-cols-10 gap-2" v-if="product.stores.length > 0">
+          <label class="col-span-3 block text-sm leading-6 text-gray-700">Store</label>
+          <label class="col-span-3 block text-sm leading-6 text-gray-700">Section</label>
+          <label class="col-span-3 block text-sm leading-6 text-gray-700">Price</label>
+          <label class="block text-sm leading-6 text-red-500">Remove?</label>
+        </div>
+        <div
+          v-for="storeProduct in product.stores"
+          :key="storeProduct"
+          class="grid grid-cols-10 gap-2 items-center"
         >
-          <template #selected="{ selected }">
-            <ColorBadge
-              v-for="storeUid in selected"
-              :key="storeUid"
-              :label="storeStore.getById(storeUid)?.name"
-              :color="storeStore.getById(storeUid)?.color"
-              :showRemoveButton="true"
-              @remove="storesComboxFilter?.removeItem(storeUid)"
+          <select
+            :id="`storeproduct-${storeProduct.id}__store`"
+            :name="`storeproduct-${storeProduct.id}__store`"
+            v-model="storeProduct.store"
+            class="col-span-3 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          >
+            <option v-if="storeProduct.store" :value="storeProduct.store">{{ storeStore.getById(storeProduct.store).name  }}</option>
+            <option
+              v-for="store in availableStores"
+              :key="store.uid"
+              :value="store.uid"
+            >
+              {{ store.name }}
+            </option>
+          </select>
+          <select
+            :disabled="storeStore.getById(storeProduct.store)?.sections.length === 0"
+            :id="`storeproduct-${storeProduct.id}__section`"
+            :name="`storeproduct-${storeProduct.id}__section`"
+            v-model="storeProduct.section"
+            class="col-span-3 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          >
+            <option :value="null">Select a section</option>
+            <option
+              v-for="section in storeStore.getById(storeProduct.store)?.sections"
+              :key="section.uid"
+              :value="section.uid"
+            >
+              {{ section.name }} ({{ section.sectionType }})
+            </option>
+          </select>
+          <div class="col-span-3 relative rounded-md shadow-sm">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <span class="text-gray-500 sm:text-sm">$</span>
+            </div>
+            <input
+              :id="`storeproduct-${storeProduct.id}__price`"
+              :name="`storeproduct-${storeProduct.id}__price`"
+              v-model="storeProduct.price"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              aria-describedby="price-currency"
+              class="block w-full rounded-md border-0 py-1.5 pl-7 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
-          </template>
-        </ComboboxFilter>
+          </div>
+          <div class="flex flex-row items-center justify-center">
+            <input
+              :id="`storeproduct-${storeProduct.id}__remove`"
+              :name="`storeproduct-${storeProduct.id}__remove`"
+              type="checkbox"
+              v-model="storeProduct.shouldRemove"
+              class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            />
+          </div>
+        </div>
+        <button
+          v-if="!hasAllStores"
+          type="button"
+          class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
+          @click="handleAddStore"
+        >
+          Add Store
+        </button>
       </div>
       <div class="space-y-2">
         <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Lists</label>

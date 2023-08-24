@@ -1,0 +1,37 @@
+mutation UpdateProduct($uid: UUID!, $name: String, $categories: [UUID], $stores: [JSONString], $lists: [UUID]) {
+  updateProduct(input: { uid: $uid, name: $name, categories: $categories, stores: $stores, lists: $lists }) {
+    product {
+      uid
+      name
+      categories {
+        edges {
+          node {
+            uid
+            name
+            color
+          }
+        }
+      }
+      stores {
+        edges {
+          node {
+            store {
+              uid
+              name
+            }
+          }
+        }
+      }
+      lists {
+        edges {
+          node {
+            list {
+              uid
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
