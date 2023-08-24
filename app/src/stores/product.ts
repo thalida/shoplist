@@ -12,12 +12,11 @@ import {
   type UpdateProductInput,
   DeleteProductDocument,
   type DeleteProductInput,
+  AllProductUnitsDocument,
 } from "@/api/gql/graphql";
 import { formatOrderByArgs, humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
 import { cloneDeep } from 'lodash';
-import type { U } from 'vitest/dist/types-198fd1d9.js';
-import type { Update } from 'vite';
 
 export const useProductStore = defineStore('product', () => {
   const collection: Ref<Record<string, any>> = ref({});
@@ -36,7 +35,6 @@ export const useProductStore = defineStore('product', () => {
   const filterBy: Ref<IFilterBy> = ref({
     name_Icontains: null,
     categories: [],
-    lists: [],
     stores: [],
   });
   const pageOrder: Ref<string[]> = ref([]);
@@ -47,6 +45,7 @@ export const useProductStore = defineStore('product', () => {
     }
     return activePage;
   });
+  const units: Ref<Record<string, any>[]> = ref([]);
   const categories: Ref<Record<string, any>[]> = ref([]);
   const lastFetchQuery: Ref<any | null> = ref(null);
 
@@ -65,6 +64,10 @@ export const useProductStore = defineStore('product', () => {
 
   function getCategoryById (uid: string) {
     return categories.value.find((category) => category.uid === uid);
+  }
+
+  function getUnitById (uid: string) {
+    return units.value.find((unit) => unit.uid === uid);
   }
 
   async function getOrFetch(uid: string) {
@@ -186,6 +189,23 @@ export const useProductStore = defineStore('product', () => {
     categories.value = cloneDeep(res.allProductCategories);
   }
 
+  async function fetchUnits() {
+    const { data } = await useQuery({
+      query: AllProductUnitsDocument,
+      variables: {
+        orderBy: 'name',
+      },
+    });
+
+    const res = humanizeGraphQLResponse(data?.value);
+
+    if (!res) {
+      return;
+    }
+
+    units.value = cloneDeep(res.allProductUnits);
+  }
+
   async function create(productData: CreateProductInput) {
     const { execute, data } = useMutation(CreateProductDocument);
     await execute(productData)
@@ -240,6 +260,10 @@ export const useProductStore = defineStore('product', () => {
     categories,
     fetchCategories,
     getCategoryById,
+
+    units,
+    fetchUnits,
+    getUnitById,
 
     setOrderBy,
     setFilterBy,

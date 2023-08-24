@@ -16,7 +16,10 @@ query Store($uid: ID!) {
         node {
           uid
           name
-          sectionType
+          sectionType {
+            uid
+            name
+          }
         }
       }
     }
@@ -27,7 +30,10 @@ query Store($uid: ID!) {
           section {
             uid
             name
-            sectionType
+            sectionType {
+              uid
+              name
+            }
           }
           product {
             uid

@@ -10,11 +10,8 @@ from .models import (
     Store,
     StoreCategory,
     StoreSection,
+    StoreSectionType,
     StoreProduct,
-
-    List,
-    ListCategory,
-    ListProduct,
 )
 
 class BaseCategoryAdmin(ModelAdmin):
@@ -46,7 +43,7 @@ class ProductAdmin(ModelAdmin):
     """
     Product admin
     """
-    list_display = ('name', 'categories_list', 'stores_list', 'lists_list')
+    list_display = ('name', 'categories_list', 'stores_list')
 
     def categories_list(self, obj):
         """
@@ -59,12 +56,6 @@ class ProductAdmin(ModelAdmin):
         Return stores list
         """
         return ', '.join([store.name for store in obj.stores.all()])
-
-    def lists_list(self, obj):
-        """
-        Return lists list
-        """
-        return ', '.join([list_.name for list_ in obj.lists.all()])
 
 
 class StoreProductInline(TabularInline):
@@ -96,8 +87,14 @@ class StoreSectionAdmin(ModelAdmin):
     StoreSection admin
     """
     list_display = ('name', 'section_type', 'store', 'description')
-    list_filter = ('section_type', 'store')
+    list_filter = ('section_type', 'store',)
 
+@admin.register(StoreSectionType)
+class StoreSectionTypeAdmin(ModelAdmin):
+    """
+    StoreSection admin
+    """
+    list_display = ('name',)
 
 
 @admin.register(Store)
@@ -108,30 +105,4 @@ class StoreAdmin(ModelAdmin):
     inlines = [
         StoreSectionInline,
         StoreProductInline,
-    ]
-
-
-class ListProductInline(TabularInline):
-    """
-    ListProduct inline
-    """
-    model = ListProduct
-    extra = 0
-
-
-@admin.register(ListCategory)
-class ListCategoryAdmin(BaseCategoryAdmin):
-    """
-    ListCategory admin
-    """
-    pass
-
-@admin.register(List)
-class ListAdmin(ModelAdmin):
-    """
-    List admin
-    """
-
-    inlines = [
-        ListProductInline,
     ]

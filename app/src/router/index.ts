@@ -2,18 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '../views/SigninView.vue'
 import { useUserStore } from '@/stores/user'
 import RouterOnlyView from '@/views/RouterOnlyView.vue'
-import ListsView from '@/views/ListsView.vue'
 import StoresView from '@/views/StoresView.vue'
 
 export const SIGNIN_ROUTE = 'Signin'
-export const LISTS_ROUTE = 'List'
-export const LIST_DETAIL_ROUTE = 'ListDetail'
 export const PRODUCTS_ROUTE = 'Product'
 export const PRODUCT_DETAIL_ROUTE = 'ProductDetail'
 export const STORES_ROUTE = 'Store'
 export const STORE_DETAIL_ROUTE = 'StoreDetail'
 
-export const HOME_ROUTE = LISTS_ROUTE
+export const HOME_ROUTE = PRODUCTS_ROUTE
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,27 +25,6 @@ const router = createRouter({
     },
     {
       alias: '/',
-      path: '/lists',
-      component: RouterOnlyView,
-      meta: {
-        requiresAuth: true,
-      },
-      children: [
-        {
-          path: '',
-          name: LISTS_ROUTE,
-          component: ListsView,
-          props: true,
-        },
-        {
-          path: ':listId',
-          name: LIST_DETAIL_ROUTE,
-          component: () => import('../views/ListDetailView.vue'),
-          props: true,
-        },
-      ],
-    },
-    {
       path: '/products',
       name: PRODUCTS_ROUTE,
       meta: {

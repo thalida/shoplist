@@ -12,8 +12,3 @@ class ColorChoice(models.TextChoices):
     BLUE = 'blue', 'Blue'
     PURPLE = 'purple', 'Purple'
     PINK = 'pink', 'Pink'
-
-
-class SectionTypeChoice(models.TextChoices):
-    AISLE = 'aisle', 'Aisle'
-    AREA = 'area', 'Area'

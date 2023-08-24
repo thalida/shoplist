@@ -2,6 +2,12 @@ query Product($uid: ID!) {
   product(id: $uid) {
     uid
     name
+    currentStock
+    targetQuantity
+    unit {
+      uid
+      name
+    }
     categories {
       edges {
         node {
@@ -21,22 +27,6 @@ query Product($uid: ID!) {
             name
           }
           store {
-            uid
-            name
-          }
-        }
-      }
-    }
-    lists {
-      edges {
-        node {
-          id
-          quantityNeed
-          quantityHave
-          unit {
-            name
-          }
-          list {
             uid
             name
           }

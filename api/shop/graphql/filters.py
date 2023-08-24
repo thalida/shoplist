@@ -1,4 +1,5 @@
 import graphene
+from django.db.models import F, Q
 from django_filters import filters, FilterSet, OrderingFilter
 from shop.models import (
   Product,
@@ -8,9 +9,6 @@ from shop.models import (
   StoreCategory,
   StoreProduct,
   StoreSection,
-  List,
-  ListCategory,
-  ListProduct,
 )
 
 class ProductFilter(FilterSet):
@@ -19,25 +17,37 @@ class ProductFilter(FilterSet):
     fields = {
       'uid': ['exact'],
       'name': ['exact', 'icontains'],
+      'current_stock': ['lt', 'gt', 'exact'],
+      'target_quantity': ['lt', 'gt', 'exact'],
     }
 
+  unit = filters.ModelMultipleChoiceFilter(
+    field_name='unit',
+    to_field_name='uid',
+    queryset=ProductUnit.objects.all(),
+  )
+
   categories = filters.ModelMultipleChoiceFilter(
-      field_name='categories',
-      to_field_name='uid',
-      queryset=ProductCategory.objects.all(),
+    field_name='categories',
+    to_field_name='uid',
+    queryset=ProductCategory.objects.all(),
   )
 
   stores = filters.ModelMultipleChoiceFilter(
-      field_name='stores',
-      to_field_name='uid',
-      queryset=Store.objects.all(),
+    field_name='stores',
+    to_field_name='uid',
+    queryset=Store.objects.all(),
   )
 
-  lists = filters.ModelMultipleChoiceFilter(
-      field_name='lists',
-      to_field_name='uid',
-      queryset=List.objects.all(),
+  to_buy = filters.BooleanFilter(
+    method='filter_to_buy'
   )
+
+  def filter_to_buy(self, queryset, name, value):
+    if value:
+      return queryset.filter(Q(current_stock__lt=F('target_quantity')) | Q(current_stock__isnull=True))
+
+    return queryset
 
   order_by = OrderingFilter(
     fields=['name']
@@ -47,61 +57,6 @@ class ProductFilter(FilterSet):
 class ProductCategoryFilter(FilterSet):
   class Meta:
     model = ProductCategory
-    fields = {
-      'uid': ['exact'],
-      'name': ['exact', 'icontains'],
-      'color': ['exact'],
-    }
-
-  order_by = OrderingFilter(
-    fields=['name', 'color']
-  )
-
-
-class ListFilter(FilterSet):
-  class Meta:
-    model = List
-    fields = {
-      'uid': ['exact'],
-      'name': ['exact', 'icontains'],
-    }
-
-  categories = filters.ModelMultipleChoiceFilter(
-      field_name='categories',
-      to_field_name='uid',
-      queryset=ListCategory.objects.all(),
-  )
-
-  products = filters.ModelMultipleChoiceFilter(
-      field_name='products',
-      to_field_name='uid',
-      queryset=Product.objects.all(),
-  )
-
-  order_by = OrderingFilter(
-    fields=['name']
-  )
-
-
-class ListProductFilter(FilterSet):
-  class Meta:
-    model = ListProduct
-    fields = {
-      'list': ['exact'],
-      'product': ['exact'],
-      'quantity_have': ['exact'],
-      'quantity_need': ['exact'],
-      'unit': ['exact'],
-    }
-
-  order_by = OrderingFilter(
-    fields=['list', 'product', 'quantity_have', 'quantity_need', 'unit']
-  )
-
-
-class ListCategoryFilter(FilterSet):
-  class Meta:
-    model = ListCategory
     fields = {
       'uid': ['exact'],
       'name': ['exact', 'icontains'],
@@ -164,8 +119,6 @@ class StoreProductFilter(FilterSet):
   order_by = OrderingFilter(
     fields=['store', 'product', 'price', 'section', 'aisle']
   )
-
-
 
 class StoreSectionFilter(FilterSet):
   class Meta:

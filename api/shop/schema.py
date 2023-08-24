@@ -1,12 +1,8 @@
 import graphene
-from django.db.models import Q
-from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from api.graphql import RelayUUIDNode
 
 from shop.graphql.nodes import (
-    ListNode,
-    ListCategoryNode,
     ProductNode,
     ProductCategoryNode,
     ProductUnitNode,
@@ -22,12 +18,6 @@ from shop.graphql.mutations import (
 )
 
 class ShopQuery(graphene.ObjectType):
-    list = RelayUUIDNode.Field(ListNode)
-    all_lists = DjangoFilterConnectionField(ListNode)
-
-    list_category = RelayUUIDNode.Field(ListCategoryNode)
-    all_list_categories = DjangoFilterConnectionField(ListCategoryNode)
-
     product = RelayUUIDNode.Field(ProductNode)
     all_products = DjangoFilterConnectionField(ProductNode)
 

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { XCircleIcon, PlusIcon } from 'lucide-vue-next';
 import { debounce } from 'lodash';
 import { TransitionRoot, TransitionChild } from '@headlessui/vue';
-import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE, LIST_DETAIL_ROUTE, STORE_DETAIL_ROUTE } from '@/router';
+import { PRODUCTS_ROUTE, PRODUCT_DETAIL_ROUTE, STORE_DETAIL_ROUTE } from '@/router';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import AppMain from '@/components/AppMain.vue';
 import DataTable, { type IDataTableHeader } from '@/components/DataTable.vue';
@@ -12,26 +12,22 @@ import ColorBadge from '@/components/ColorBadge.vue';
 import ComboboxFilter from '@/components/ComboboxFilter.vue';
 import { toggleOrderByField } from '@/utils/api';
 import { useProductStore } from '@/stores/product';
-import { useListStore } from '@/stores/list';
 import { useStoreStore } from '@/stores/store';
 
 const router = useRouter();
 const route = useRoute();
-const listStore = useListStore();
 const storeStore = useStoreStore();
 const productStore = useProductStore();
 
 const isDetailRoute = computed(() => route.matched.some((m) => m.name === PRODUCT_DETAIL_ROUTE));
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
-const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const headers: IDataTableHeader[] = [
   { label: "Name", key: "name", isSortable: true, isFilterable: false },
   { label: "Category", key: "categories", isSortable: false, isFilterable: true },
   { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
-  { label: "Lists", key: "lists", isSortable: false, isFilterable: true },
 ];
 const searchQuery = ref('');
 
@@ -119,8 +115,8 @@ function handleFiltersChanged(field: string, selectedItems: string[]) {
 onMounted(async () => {
   await Promise.all([
     storeStore.fetch(),
-    listStore.fetch(),
     productStore.fetchCategories(),
+    productStore.fetchUnits(),
   ]);
   loadData({
     first: productStore.pageSize,
@@ -293,66 +289,6 @@ onMounted(async () => {
           </div>
         </template>
 
-
-        <template #item-lists="{ item }">
-          <div class="flex flex-row flex-wrap gap-1">
-              <RouterLink
-                v-for="listProduct in item.lists"
-                custom
-                v-slot="{ href, navigate }"
-                :key="listProduct.list.uid"
-                :to="{
-                  name: LIST_DETAIL_ROUTE,
-                  params: {
-                    listId: listProduct.list.uid,
-                  },
-                }"
-              >
-                <a
-                :href="href"
-                @click.stop="navigate"
-                class="rounded bg-indigo-50 px-2 py-1 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100"
-                >
-                  {{ listProduct.list.name }}
-                </a>
-              </RouterLink>
-          </div>
-        </template>
-        <template #filter-status-lists>
-          <span
-            v-if="productStore.filterBy.lists?.length > 0"
-            class="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700"
-          >
-            {{ productStore.filterBy.lists?.length }}
-          </span>
-        </template>
-        <template #filter-panel-lists>
-          <div class="p-4">
-            <ComboboxFilter
-              ref="listsComboxFilter"
-              :items="Object.values(listStore.collection)"
-              :selected="productStore.filterBy.lists"
-              labelKey="name"
-              valueKey="uid"
-              idKey="uid"
-              inputPlaceholder="Search lists"
-              @update:selected="(items) => handleFiltersChanged('lists', items)"
-            >
-              <template #selected="{ selected }">
-                <div class="flex flex-row flex-wrap gap-1 py-1">
-                  <ColorBadge
-                    v-for="listUid in selected"
-                    :key="listUid"
-                    :label="listStore.getById(listUid)?.name"
-                    :color="listStore.getById(listUid)?.color"
-                    :showRemoveButton="true"
-                    @remove="listsComboxFilter?.removeItem(listUid)"
-                  />
-                </div>
-              </template>
-            </ComboboxFilter>
-          </div>
-        </template>
       </DataTable>
     </div>
     <TransitionRoot as="template" :show="isDetailRoute">

@@ -5,13 +5,10 @@ from api.permissions import login_required
 from shop.models import (
     Product,
     Store,
-    List,
     StoreSection,
 )
 from shop.graphql.nodes import (
     ProductNode,
-    StoreNode,
-    ListNode,
 )
 
 
@@ -19,8 +16,10 @@ class CreateProduct(graphene.relay.ClientIDMutation):
     class Input:
         name = graphene.String(required=True)
         categories = graphene.List(graphene.UUID, required=False)
-        stores = graphene.List(graphene.UUID, required=False)
-        lists = graphene.List(graphene.UUID, required=False)
+        stores = graphene.List(graphene.JSONString, required=False)
+        target_quantity = graphene.Float(required=False)
+        current_stock = graphene.Float(required=False)
+        unit = graphene.UUID(required=False)
 
     product = graphene.Field(ProductNode)
 
@@ -39,13 +38,27 @@ class CreateProduct(graphene.relay.ClientIDMutation):
                 product.categories.set(v)
                 continue
 
+
             if k == 'stores':
-                product.stores.set(v)
+                product.stores.clear()
+                for storeProduct in v:
+                    store = Store.objects.get(uid=storeProduct.get('store', None))
+
+                    try:
+                        store_section = StoreSection.objects.get(uid=storeProduct.get('section', None))
+                    except StoreSection.DoesNotExist:
+                        store_section = None
+
+                    product.stores.add(
+                        store,
+                        through_defaults={
+                            'price': storeProduct.get('price', None),
+                            'section': store_section,
+                        }
+                    )
                 continue
 
-            if k == 'lists':
-                product.lists.set(v)
-                continue
+            setattr(product, k, v)
 
         product.save()
 
@@ -57,8 +70,10 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         uid = graphene.UUID(required=True)
         name = graphene.String(required=False)
         categories = graphene.List(graphene.UUID, required=False)
-        lists = graphene.List(graphene.UUID, required=False)
         stores = graphene.List(graphene.JSONString, required=False)
+        target_quantity = graphene.Float(required=False)
+        current_stock = graphene.Float(required=False)
+        unit = graphene.UUID(required=False)
 
 
     product = graphene.Field(ProductNode)
@@ -93,10 +108,6 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
                             'section': store_section,
                         }
                     )
-                continue
-
-            if k == 'lists':
-                product.lists.set(v)
                 continue
 
             setattr(product, k, v)

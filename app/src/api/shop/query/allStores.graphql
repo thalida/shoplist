@@ -26,7 +26,10 @@ query AllStores($first: Int, $after: String, $last: Int, $before: String, $order
             node {
               uid
               name
-              sectionType
+              sectionType {
+                uid
+                name
+              }
             }
           }
         }
@@ -37,7 +40,10 @@ query AllStores($first: Int, $after: String, $last: Int, $before: String, $order
               section {
                 uid
                 name
-                sectionType
+                sectionType {
+                  uid
+                  name
+                }
               }
               product {
                 uid

@@ -265,19 +265,14 @@ UNFOLD = {
                         "link": reverse_lazy("admin:index"),
                     },
                     {
-                        "title": _("Lists"),
+                        "title": _("Products"),
                         "icon": "shopping_bag",
-                        "link": reverse_lazy("admin:shop_list_changelist"),
+                        "link": reverse_lazy("admin:shop_product_changelist"),
                     },
                     {
                         "title": _("Stores"),
                         "icon": "shopping_bag",
                         "link": reverse_lazy("admin:shop_store_changelist"),
-                    },
-                    {
-                        "title": _("Products"),
-                        "icon": "shopping_bag",
-                        "link": reverse_lazy("admin:shop_product_changelist"),
                     },
                     {
                         "title": _("Users"),
@@ -314,25 +309,6 @@ UNFOLD = {
         },
         {
             "models": [
-                "shop.list",
-                "shop.listcategory",
-            ],
-            "items": [
-                {
-                    "title": _("All Lists"),
-                    "link": reverse_lazy("admin:shop_list_changelist"),
-                },
-                {
-                    "title": _("List Categories"),
-                    "link": reverse_lazy("admin:shop_listcategory_changelist"),
-                },
-            ],
-        },
-
-
-
-        {
-            "models": [
                 "shop.product",
                 "shop.productcategory",
                 "shop.productunit",
@@ -352,14 +328,12 @@ UNFOLD = {
                 },
             ],
         },
-
-
-
         {
             "models": [
                 "shop.store",
                 "shop.storecategory",
                 "shop.storesection",
+                "shop.storesectiontype",
             ],
             "items": [
                 {
@@ -373,6 +347,10 @@ UNFOLD = {
                 {
                     "title": _("Store Sections"),
                     "link": reverse_lazy("admin:shop_storesection_changelist"),
+                },
+                {
+                    "title": _("Store Section Types"),
+                    "link": reverse_lazy("admin:shop_storesectiontype_changelist"),
                 },
             ],
         },

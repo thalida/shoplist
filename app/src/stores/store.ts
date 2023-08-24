@@ -144,7 +144,7 @@ export const useStoreStore = defineStore('store', () => {
       return;
     }
 
-    categories.value = cloneDeep(res.allListCategories);
+    categories.value = cloneDeep(res.allStoreCategories);
   }
 
   function getCategoryById (uid: string) {

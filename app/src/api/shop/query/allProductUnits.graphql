@@ -1,0 +1,13 @@
+query AllProductUnits($uid: UUID, $name: String, $name_Icontains: String, $orderBy: String) {
+  allProductUnits(uid: $uid, name: $name, name_Icontains: $name_Icontains, orderBy: $orderBy) {
+    totalCount
+    filteredCount
+    edges {
+      node {
+        uid
+        name
+        abbreviation
+      }
+    }
+  }
+}

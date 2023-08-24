@@ -6,7 +6,6 @@ import { cloneDeep, keyBy } from 'lodash';
 import { DialogTitle } from '@headlessui/vue';
 import { PRODUCTS_ROUTE } from '@/router';
 import { useProductStore } from '@/stores/product';
-import { useListStore } from '@/stores/list';
 import { useStoreStore } from '@/stores/store';
 import ComboboxFilter from '@/components/ComboboxFilter.vue';
 import ColorBadge from '@/components/ColorBadge.vue';
@@ -19,18 +18,14 @@ const props = defineProps({
 });
 const isCreateMode = computed(() => props.productId === 'new');
 const router = useRouter();
-
-const listStore = useListStore();
 const storeStore = useStoreStore();
 const productStore = useProductStore();
 
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
-const listsComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const product = ref({
   name: '',
   categories: [] as string[],
-  lists: [] as string[],
   stores: [] as any[],
 });
 
@@ -41,10 +36,6 @@ const title = computed(() => {
   return `Edit Product: ${product.value.name}`;
 });
 
-const totalStores = computed(() => {
-  return storeStore.collectionAsArray.length;
-});
-
 const availableStores = computed(() => {
   return storeStore.collectionAsArray.filter((store) => {
     return !product.value.stores.find((storeProduct: any) => {
@@ -53,9 +44,14 @@ const availableStores = computed(() => {
   });
 });
 
+const totalStores = computed(() => {
+  return storeStore.collectionAsArray.length;
+});
+
 const hasAllStores = computed(() => {
   return product.value.stores.length === totalStores.value;
 });
+
 
 function handleDetailPanelClose() {
   router.push({
@@ -123,13 +119,12 @@ function handleAddStore() {
 onMounted(async () => {
   await Promise.all([
     storeStore.fetch(),
-    listStore.fetch(),
     productStore.fetchCategories(),
+    productStore.fetchUnits(),
   ]);
 
   if (isCreateMode.value) {
     product.value.categories = cloneDeep(productStore.filterBy.categories)
-    product.value.lists = cloneDeep(productStore.filterBy.lists)
   } else {
     await productStore.getOrFetch(props.productId);
 
@@ -138,7 +133,6 @@ onMounted(async () => {
     if (dbProduct) {
       product.value = cloneDeep(dbProduct);
       product.value.categories = Object.keys(keyBy(dbProduct.categories, 'uid'));
-      product.value.lists = Object.keys(keyBy(dbProduct.lists, 'list.uid'));
 
       const productStores = [];
       for (const storeProduct of dbProduct.stores) {
@@ -217,7 +211,7 @@ onMounted(async () => {
         </div>
         <div
           v-for="storeProduct in product.stores"
-          :key="storeProduct"
+          :key="storeProduct.id"
           class="grid grid-cols-10 gap-2 items-center"
         >
           <select
@@ -285,30 +279,6 @@ onMounted(async () => {
         >
           Add Store
         </button>
-      </div>
-      <div class="space-y-2">
-        <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Lists</label>
-        <ComboboxFilter
-          ref="listsComboxFilter"
-          :items="listStore.collectionAsArray"
-          :selected="product.lists"
-          labelKey="name"
-          valueKey="uid"
-          idKey="uid"
-          inputPlaceholder="Search lists"
-          @update:selected="(items) => handleFiltersChanged('lists', items)"
-        >
-          <template #selected="{ selected }">
-            <ColorBadge
-              v-for="listUid in selected"
-              :key="listUid"
-              :label="listStore.getById(listUid)?.name"
-              :color="listStore.getById(listUid)?.color"
-              :showRemoveButton="true"
-              @remove="listsComboxFilter?.removeItem(listUid)"
-            />
-          </template>
-        </ComboboxFilter>
       </div>
     </div>
     <div class="flex flex-shrink-0 justify-end p-4 sm:p-6 border-t border-gray-200 space-x-2">

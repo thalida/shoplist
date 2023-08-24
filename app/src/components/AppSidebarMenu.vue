@@ -11,7 +11,7 @@ import { useUserStore } from '@/stores/user';
 import { getFullName } from '@/utils/user';
 import AuthButton from '@/components/AuthButton.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
-import { LISTS_ROUTE, LIST_DETAIL_ROUTE, PRODUCTS_ROUTE, STORES_ROUTE } from '@/router';
+import { PRODUCTS_ROUTE, STORES_ROUTE } from '@/router';
 
 const route = useRoute()
 const router = useRouter()
@@ -30,45 +30,45 @@ function isActiveRoutePath(navRoute: RouteLocationNamedRaw) {
 }
 
 const navigation = [
-  {
-    name: "Lists",
-    icon: QueueListIcon,
-    current: false,
-    route: { name: LISTS_ROUTE },
-    children: [
-      {
-        name: "Pinned",
-        children: [
-          {
-            name: "Grocery",
-            route: { name: LIST_DETAIL_ROUTE, params: { listId: "1" } },
-          },
-          {
-            name: "Home Goods",
-            route: { name: LIST_DETAIL_ROUTE, params: { listId: "2" } },
-          },
-        ],
-      },
-      {
-        name: "Recent",
-        children: [
-          {
-            name: "Grocery",
-            route: { name: LIST_DETAIL_ROUTE, params: { listId: "3" } },
-          },
-          {
-            name: "Home Goods",
-            route: { name: LIST_DETAIL_ROUTE, params: { listId: "4" } },
-          },
-        ],
-      },
-      {
-        name: "View all",
-        route: { name: LISTS_ROUTE },
-        disableActive: true,
-      },
-    ]
-  },
+  // {
+  //   name: "Lists",
+  //   icon: QueueListIcon,
+  //   current: false,
+  //   route: { name: LISTS_ROUTE },
+  //   children: [
+  //     {
+  //       name: "Pinned",
+  //       children: [
+  //         {
+  //           name: "Grocery",
+  //           route: { name: LIST_DETAIL_ROUTE, params: { listId: "1" } },
+  //         },
+  //         {
+  //           name: "Home Goods",
+  //           route: { name: LIST_DETAIL_ROUTE, params: { listId: "2" } },
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       name: "Recent",
+  //       children: [
+  //         {
+  //           name: "Grocery",
+  //           route: { name: LIST_DETAIL_ROUTE, params: { listId: "3" } },
+  //         },
+  //         {
+  //           name: "Home Goods",
+  //           route: { name: LIST_DETAIL_ROUTE, params: { listId: "4" } },
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       name: "View all",
+  //       route: { name: LISTS_ROUTE },
+  //       disableActive: true,
+  //     },
+  //   ]
+  // },
   {
     name: "Products",
     route: { name: PRODUCTS_ROUTE },
