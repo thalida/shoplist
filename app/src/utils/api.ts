@@ -24,15 +24,13 @@ export function formatOrderByArgs(orderBy: IOrderBy[] | null | undefined, keyMap
       return "";
     }
 
-    const orderByStr = orderBy.map((order) => {
-      const queryKey = keyMap[order.field] || order.field
-
-      if (order.value === null) {
-        return '';
-      }
-
-      return `${order.value ? "" : "-"}${queryKey}`;
-    }).join(",");
+    const orderByStr = orderBy
+      .filter((order) => order.value !== null && typeof order.value === "boolean")
+      .map((order) => {
+        const queryKey = keyMap[order.field] || order.field
+        return `${order.value ? "" : "-"}${queryKey}`;
+      })
+      .join(",");
 
     return orderByStr;
   }

@@ -50,7 +50,7 @@ class ProductFilter(FilterSet):
     return queryset
 
   order_by = OrderingFilter(
-    fields=['name']
+    fields=['name', 'current_stock', 'target_quantity']
   )
 
 
