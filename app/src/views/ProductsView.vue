@@ -26,8 +26,11 @@ const storesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(
 
 const headers: IDataTableHeader[] = [
   { label: "Name", key: "name", isSortable: true, isFilterable: false },
-  { label: "Category", key: "categories", isSortable: false, isFilterable: true },
+  { label: "Current Stock", key: "currentStock", isSortable: true, isFilterable: false },
+  { label: "Target Quantity", key: "targetQuantity", isSortable: true, isFilterable: false },
+  { label: "Unit", key: "unit", isSortable: false, isFilterable: false },
   { label: "Stores", key: "stores", isSortable: false, isFilterable: true },
+  { label: "Category", key: "categories", isSortable: false, isFilterable: true },
 ];
 const searchQuery = ref('');
 

@@ -24,6 +24,7 @@ const productStore = useProductStore();
 const categoriesComboxFilter: Ref<InstanceType<typeof ComboboxFilter> | null> = ref(null);
 
 const product = ref({
+  uid: null as string | null,
   name: '',
   categories: [] as string[],
   stores: [] as any[],
@@ -75,30 +76,7 @@ async function handleProductDelete() {
 }
 
 async function handleProductSave() {
-  const formattedProduct = {
-    ...product.value,
-    stores: product.value.stores
-      .filter((storeProduct: any) => {
-        return !storeProduct.shouldRemove && typeof storeProduct.store === 'string';
-      })
-      .map((storeProduct: any) => {
-        return JSON.stringify({
-          store: storeProduct.store,
-          section: storeProduct.section,
-          price: storeProduct.price,
-        });
-      }),
-  };
-
-  if (isCreateMode.value) {
-    await productStore.create(formattedProduct)
-  } else {
-    await productStore.update({
-      uid: props.productId,
-      ...formattedProduct,
-    });
-  }
-
+  await productStore.createOrUpdate(product.value);
   productStore.refetch();
   handleDetailPanelClose();
 }
@@ -188,21 +166,30 @@ onMounted(async () => {
           idKey="uid"
           inputPlaceholder="Search categories"
           @update:selected="(items) => handleFiltersChanged('categories', items)"
+          :allowCustomValues="true"
         >
           <template #selected="{ selected }">
-            <ColorBadge
-              v-for="categoryUid in selected"
-              :key="categoryUid"
-              :label="productStore.getCategoryById(categoryUid)?.name"
-              :color="productStore.getCategoryById(categoryUid)?.color"
-              :showRemoveButton="true"
-              @remove="categoriesComboxFilter?.removeItem(categoryUid)"
-            />
+            <template v-for="category in selected" :key="category">
+              <ColorBadge
+                v-if="typeof category === 'string'"
+                :label="productStore.getCategoryById(category)?.name"
+                :color="productStore.getCategoryById(category)?.color"
+                :showRemoveButton="true"
+                @remove="categoriesComboxFilter?.removeItem(category)"
+              />
+              <ColorBadge
+                v-else
+                :label="category.name"
+                :color="category.color"
+                :showRemoveButton="true"
+                @remove="categoriesComboxFilter?.removeItem(category)"
+              />
+            </template>
           </template>
         </ComboboxFilter>
       </div>
       <div class="space-y-2">
-        <label class="col-span-3 block text-sm font-medium leading-6 text-gray-700">Related Stores</label>
+        <label class="col-span-3 block text-sm font-medium leading-6 text-gray-700">Assigned Stores</label>
         <div class="grid grid-cols-10 gap-2" v-if="product.stores.length > 0">
           <label class="col-span-3 block text-sm leading-6 text-gray-700">Store</label>
           <label class="col-span-3 block text-sm leading-6 text-gray-700">Section</label>
@@ -220,6 +207,7 @@ onMounted(async () => {
             v-model="storeProduct.store"
             class="col-span-3 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
+            <option value="">Select a store</option>
             <option v-if="storeProduct.store" :value="storeProduct.store">{{ storeStore.getById(storeProduct.store).name  }}</option>
             <option
               v-for="store in availableStores"
@@ -236,13 +224,13 @@ onMounted(async () => {
             v-model="storeProduct.section"
             class="col-span-3 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
-            <option :value="null">Select a section</option>
+            <option value="">Select a section</option>
             <option
               v-for="section in storeStore.getById(storeProduct.store)?.sections"
               :key="section.uid"
               :value="section.uid"
             >
-              {{ section.name }} ({{ section.sectionType }})
+              {{ section.name }}
             </option>
           </select>
           <div class="col-span-3 relative rounded-md shadow-sm">
@@ -277,7 +265,7 @@ onMounted(async () => {
           class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
           @click="handleAddStore"
         >
-          Add Store
+          Assign a Store
         </button>
       </div>
     </div>

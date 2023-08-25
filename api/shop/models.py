@@ -13,6 +13,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True, default=None)
     categories = models.ManyToManyField('ProductCategory', blank=True, related_name='products')
 
     target_quantity = models.FloatField(default=1)

@@ -1,0 +1,9 @@
+mutation CreateProductCategory($name: String!, $color: String) {
+  createProductCategory(input: { name: $name, color: $color }) {
+    productCategory {
+      uid
+      name
+      color
+    }
+  }
+}

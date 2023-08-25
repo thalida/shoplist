@@ -4,12 +4,38 @@ import graphene
 from api.permissions import login_required
 from shop.models import (
     Product,
+    ProductCategory,
     Store,
     StoreSection,
 )
 from shop.graphql.nodes import (
+    ProductCategoryNode,
     ProductNode,
 )
+
+class CreateProductCategory(graphene.relay.ClientIDMutation):
+    class Input:
+        name = graphene.String(required=True)
+        color = graphene.String(required=False)
+
+    product_category = graphene.Field(ProductCategoryNode)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        product_category = ProductCategory.objects.create(
+            name=input.get('name'),
+        )
+
+        for k, v in input.items():
+            if k == 'name':
+                continue
+
+            setattr(product_category, k, v)
+
+        product_category.save()
+
+        return CreateProductCategory(product_category=product_category)
 
 
 class CreateProduct(graphene.relay.ClientIDMutation):

@@ -13,6 +13,8 @@ import {
   DeleteProductDocument,
   type DeleteProductInput,
   AllProductUnitsDocument,
+  CreateProductCategoryDocument,
+  type CreateProductCategoryInput,
 } from "@/api/gql/graphql";
 import { formatOrderByArgs, humanizeGraphQLResponse } from '@/utils/api';
 import type { IPageInfo, IOrderBy, IFilterBy, IError } from '@/types/api';
@@ -230,6 +232,50 @@ export const useProductStore = defineStore('product', () => {
     collection.value[res.updateProduct.product.uid] = res.updateProduct.product;
   }
 
+  async function createOrUpdate(productData: any): Promise<void> {
+    const newCategories = productData.categories
+      .filter((category: any) => {
+        return typeof category !== 'string';
+      })
+
+    if (newCategories.length > 0) {
+      const createdCategories = await Promise.all(newCategories.map((category: CreateProductCategoryInput) => {
+        return createCategory({
+          name: category.name,
+          color: category.color,
+        })
+      }));
+
+      productData.categories = [
+        ...productData.categories.filter((category: any) => typeof category === 'string'),
+        ...createdCategories.map((category: any) => category.uid),
+      ];
+    }
+
+    const stores = productData.stores
+      .filter((storeProduct: any) => {
+        return !storeProduct.shouldRemove && typeof storeProduct.store === 'string';
+      })
+      .map((storeProduct: any) => {
+        return JSON.stringify({
+          store: storeProduct.store,
+          section: storeProduct.section,
+          price: storeProduct.price,
+        });
+      })
+
+    const formattedProduct = {
+      ...productData,
+      stores,
+    };
+
+    if (formattedProduct.uid === null) {
+      return create(formattedProduct)
+    } else {
+      return update(formattedProduct);
+    }
+  }
+
   async function remove(productData: DeleteProductInput) {
     const { execute, data } = useMutation(DeleteProductDocument);
     await execute(productData);
@@ -240,6 +286,20 @@ export const useProductStore = defineStore('product', () => {
     }
 
     collection.value[res.deleteProduct.product.uid].isDeleted = true;
+  }
+
+  async function createCategory(category: CreateProductCategoryInput) {
+    const { execute, data } = useMutation(CreateProductCategoryDocument);
+    await execute(category);
+
+    const res = humanizeGraphQLResponse(data?.value)
+    if (!res) {
+      return;
+    }
+
+    categories.value.push(res.createProductCategory.productCategory);
+
+    return res.createProductCategory.productCategory;
   }
 
   return {
@@ -270,6 +330,9 @@ export const useProductStore = defineStore('product', () => {
 
     create,
     update,
+    createOrUpdate,
     remove,
+
+    createCategory,
   };
 });

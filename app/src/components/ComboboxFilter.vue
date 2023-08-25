@@ -16,7 +16,7 @@ const props = defineProps({
     required: true,
   },
   selected: {
-    type: Array as PropType<string[]>,
+    type: Array as PropType<(string | Record<string, any>)[]>,
     required: true,
   },
   idKey: {
@@ -39,6 +39,11 @@ const props = defineProps({
     required: false,
     default: 'Search items',
   },
+  allowCustomValues: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
 const emit = defineEmits<{
@@ -46,7 +51,14 @@ const emit = defineEmits<{
 }>();
 
 const query = ref('')
-const localSelected = ref<string[]>(props.selected)
+const createQueryOption = computed(() => {
+  return {
+    [props.idKey]: null,
+    [props.labelKey]: query.value,
+    [props.valueKey]: query.value,
+  }
+})
+const localSelected = ref<(string | Record<string, any>)[]>(props.selected)
 const filteredItems = computed(() =>
   query.value === ''
     ? props.items
@@ -66,8 +78,15 @@ function boldSearchQuery(query: string | null, text: string) {
   return text.replace(regex, (match) => `<b>${match}</b>`);
 }
 
-function removeItem(item: string) {
-  const index = localSelected.value.indexOf(item)
+function removeItem(item: string | Record<string, any>) {
+  let index = -1
+
+  if (typeof item === 'string') {
+    index = localSelected.value.indexOf(item)
+  } else {
+    index = localSelected.value.findIndex((i: any) => i[props.valueKey] === item[props.valueKey])
+  }
+
   if (index > -1) {
     localSelected.value.splice(index, 1)
   }
@@ -106,7 +125,23 @@ defineExpose({
           </ComboboxButton>
         </div>
 
-        <ComboboxOptions v-if="filteredItems.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+        <ComboboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <ComboboxOption
+            as="template"
+            v-if="allowCustomValues && query.length > 0"
+            :value="createQueryOption"
+            v-slot="{ active, selected }"
+          >
+            <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-indigo-600 text-white' : 'text-gray-900']">
+              <span :class="['block truncate']">
+                <b>Create &ldquo;{{ createQueryOption[labelKey] }}&rdquo;</b>
+              </span>
+
+              <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-indigo-600']">
+                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+              </span>
+            </li>
+          </ComboboxOption>
           <ComboboxOption
             as="template"
             v-for="item in filteredItems"

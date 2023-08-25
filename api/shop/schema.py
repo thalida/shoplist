@@ -13,6 +13,7 @@ from shop.graphql.nodes import (
 
 from shop.graphql.mutations import (
     CreateProduct,
+    CreateProductCategory,
     UpdateProduct,
     DeleteProduct,
 )
@@ -42,3 +43,5 @@ class ShopMutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
     delete_product = DeleteProduct.Field()
+
+    create_product_category = CreateProductCategory.Field()
