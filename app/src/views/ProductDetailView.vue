@@ -28,6 +28,9 @@ const product = ref({
   name: '',
   categories: [] as string[],
   stores: [] as any[],
+  currentStock: 0,
+  targetQuantity: 1,
+  unit: null as string | null,
 });
 
 const title = computed(() => {
@@ -153,6 +156,47 @@ onMounted(async () => {
             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             v-model="product.name"
           />
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label class="col-span-3 block text-sm font-medium leading-6 text-gray-700">Stock</label>
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-5 flex flex-col space-y-1">
+            <label class="block text-sm leading-6 text-gray-700">Current</label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="0"
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              v-model="product.currentStock"
+            />
+          </div>
+          <div class="col-span-5 flex flex-col space-y-1">
+            <label class="block text-sm leading-6 text-gray-700">Target</label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="1"
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              v-model="product.targetQuantity"
+            />
+          </div>
+          <div class="col-span-2 flex flex-col space-y-1">
+            <label class="block text-sm leading-6 text-gray-700">Unit</label>
+            <select
+              v-model="product.unit"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <option value="">Select a unit</option>
+              <option
+                v-for="unit in productStore.units"
+                :key="unit.uid"
+                :value="unit.uid">
+                {{ unit.name }} <span v-if="unit.abbreviation">({{ unit.abbreviation }})</span>
+              </option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="space-y-2">

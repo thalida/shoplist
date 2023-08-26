@@ -1,0 +1,104 @@
+query Pantry(
+  $uid: ID!,
+  $offset: Int
+  $before: String,
+  $after: String,
+  $first: Int,
+  $last: Int,
+  $pantry: ID,
+  $product: ID,
+  $product_Name: String,
+  $product_Name_Icontains: String,
+  $quantity: Float,
+  $quantity_Gte: Float,
+  $quantity_Lte: Float,
+  $minimumQuantity: Float,
+  $minimumQuantity_Gte: Float,
+  $minimumQuantity_Lte: Float,
+  $unit: ID,
+  $notes: String,
+  $notes_Icontains: String,
+  $expirationDate: Date,
+  $expirationDate_Before: Date,
+  $expirationDate_After: Date,
+  $restock: Boolean,
+  $orderBy: String,
+) {
+  pantry(
+    id: $uid,
+  ) {
+    uid
+    name
+    products (
+      offset: $offset
+      before: $before,
+      after: $after,
+      first: $first,
+      last: $last,
+      pantry: $pantry,
+      product: $product,
+      product_Name: $product_Name,
+      product_Name_Icontains: $product_Name_Icontains,
+      quantity: $quantity,
+      quantity_Gte: $quantity_Gte,
+      quantity_Lte: $quantity_Lte,
+      minimumQuantity: $minimumQuantity,
+      minimumQuantity_Gte: $minimumQuantity_Gte,
+      minimumQuantity_Lte: $minimumQuantity_Lte,
+      unit: $unit,
+      notes: $notes,
+      notes_Icontains: $notes_Icontains,
+      expirationDate: $expirationDate,
+      expirationDate_Before: $expirationDate_Before,
+      expirationDate_After: $expirationDate_After,
+      restock: $restock,
+      orderBy: $orderBy,
+    ) {
+      totalCount
+      filteredCount
+      edges {
+        node {
+          id
+          quantity
+          minimumQuantity
+          unit {
+            uid
+            name
+          }
+          buyThreshold
+          expirationDate
+          notes
+          product {
+            uid
+            name
+            categories {
+              edges {
+                node {
+                  uid
+                  name
+                  color
+                }
+              }
+            }
+            stores {
+              edges {
+                node {
+                  id
+                  price
+                  section {
+                    uid
+                    name
+                  }
+                  store {
+                    uid
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

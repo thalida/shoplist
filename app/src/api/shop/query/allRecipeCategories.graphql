@@ -1,0 +1,13 @@
+query AllRecipeCategories($uid: UUID, $name: String, $name_Icontains: String, $color: String, $orderBy: String) {
+  allRecipeCategories(uid: $uid, name: $name, name_Icontains: $name_Icontains, color: $color, orderBy: $orderBy) {
+    totalCount
+    filteredCount
+    edges {
+      node {
+        uid
+        name
+        color
+      }
+    }
+  }
+}

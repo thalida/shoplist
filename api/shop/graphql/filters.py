@@ -1,4 +1,5 @@
 import graphene
+from datetime import datetime, timedelta, time
 from django.db.models import F, Q
 from django_filters import filters, FilterSet, OrderingFilter
 from shop.models import (
@@ -9,6 +10,11 @@ from shop.models import (
   StoreCategory,
   StoreProduct,
   StoreSection,
+  Pantry,
+  PantryProduct,
+  Recipe,
+  RecipeCategory,
+  RecipeProduct,
 )
 
 class ProductFilter(FilterSet):
@@ -17,15 +23,7 @@ class ProductFilter(FilterSet):
     fields = {
       'uid': ['exact'],
       'name': ['exact', 'icontains'],
-      'current_stock': ['lt', 'gt', 'exact'],
-      'target_quantity': ['lt', 'gt', 'exact'],
     }
-
-  unit = filters.ModelMultipleChoiceFilter(
-    field_name='unit',
-    to_field_name='uid',
-    queryset=ProductUnit.objects.all(),
-  )
 
   categories = filters.ModelMultipleChoiceFilter(
     field_name='categories',
@@ -39,18 +37,8 @@ class ProductFilter(FilterSet):
     queryset=Store.objects.all(),
   )
 
-  to_buy = filters.BooleanFilter(
-    method='filter_to_buy'
-  )
-
-  def filter_to_buy(self, queryset, name, value):
-    if value:
-      return queryset.filter(Q(current_stock__lt=F('target_quantity')) | Q(current_stock__isnull=True))
-
-    return queryset
-
   order_by = OrderingFilter(
-    fields=['name', 'current_stock', 'target_quantity']
+    fields=['name']
   )
 
 
@@ -144,4 +132,137 @@ class ProductUnitFilter(FilterSet):
 
   order_by = OrderingFilter(
     fields=['name']
+  )
+
+
+class PantryFilter(FilterSet):
+  class Meta:
+    model = Pantry
+    fields = {
+      'uid': ['exact'],
+      'name': ['exact', 'icontains'],
+    }
+
+  products = filters.ModelMultipleChoiceFilter(
+    field_name='products',
+    to_field_name='uid',
+    queryset=Product.objects.all(),
+  )
+
+  order_by = OrderingFilter(
+    fields=['name']
+  )
+
+
+class PantryProductFilter(FilterSet):
+  class Meta:
+    model = PantryProduct
+    fields = {
+      'pantry': ['exact'],
+      'product': ['exact'],
+      'product__name': ['exact', 'icontains'],
+      'quantity': ['exact', 'gte', 'lte'],
+      'minimum_quantity': ['exact', 'gte', 'lte'],
+      'unit': ['exact'],
+      'notes': ['exact', 'icontains'],
+    }
+
+
+  expiration_date = filters.DateFilter(
+    field_name='expiration_date',
+    lookup_expr='exact',
+  )
+
+  expiration_date__before = filters.DateFilter(
+    field_name='expiration_date',
+    lookup_expr='lte',
+  )
+
+  expiration_date__after = filters.DateFilter(
+    field_name='expiration_date',
+    lookup_expr='gte',
+  )
+
+  restock = filters.BooleanFilter(
+    method='filter_restock',
+  )
+
+  def filter_restock(self, queryset, name, value):
+    if not value:
+      return queryset
+
+    today = datetime.now().date()
+
+    return (
+      queryset
+        .annotate(
+          threshold_quantity=F('minimum_quantity') * F('buy_threshold'),
+          needs_more=F('quantity') <= F('threshold_quantity'),
+          is_expired=Q(expiration_date__lte=today),
+        )
+        .filter(
+          Q(needs_more=True) | Q(is_expired=True)
+        )
+    )
+
+  order_by = OrderingFilter(
+    fields=['pantry', 'product', 'quantity', 'minimum_quantity', 'expiration_date', 'unit']
+  )
+
+
+class RecipeFilter(FilterSet):
+  class Meta:
+    model = Recipe
+    fields = {
+      'uid': ['exact'],
+      'name': ['exact', 'icontains'],
+      'description': ['exact', 'icontains'],
+      'url': ['exact', 'icontains'],
+      'is_planned': ['exact'],
+      'is_favorite': ['exact'],
+    }
+
+  categories = filters.ModelMultipleChoiceFilter(
+    field_name='categories',
+    to_field_name='uid',
+    queryset=RecipeCategory.objects.all(),
+  )
+
+  products = filters.ModelMultipleChoiceFilter(
+    field_name='products',
+    to_field_name='uid',
+    queryset=Product.objects.all(),
+  )
+
+  order_by = OrderingFilter(
+    fields=['name']
+  )
+
+
+class RecipeCategoryFilter(FilterSet):
+  class Meta:
+    model = RecipeCategory
+    fields = {
+      'uid': ['exact'],
+      'name': ['exact', 'icontains'],
+      'color': ['exact'],
+    }
+
+  order_by = OrderingFilter(
+    fields=['name', 'color']
+  )
+
+
+class RecipeProductFilter(FilterSet):
+  class Meta:
+    model = RecipeProduct
+    fields = {
+      'recipe': ['exact'],
+      'product': ['exact'],
+      'quantity': ['exact', 'gte', 'lte'],
+      'unit': ['exact'],
+    }
+
+  order_by = OrderingFilter(
+    fields=['recipe', 'product', 'quantity', 'unit']
   )

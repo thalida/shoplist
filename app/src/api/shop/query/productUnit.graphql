@@ -1,0 +1,7 @@
+query ProductUnit($uid: ID!) {
+  productUnit(id: $uid) {
+    uid
+    name
+    abbreviation
+  }
+}

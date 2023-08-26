@@ -2,12 +2,6 @@ query Product($uid: ID!) {
   product(id: $uid) {
     uid
     name
-    currentStock
-    targetQuantity
-    unit {
-      uid
-      name
-    }
     categories {
       edges {
         node {

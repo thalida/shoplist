@@ -3,6 +3,13 @@ from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin, TabularInline
 
 from .models import (
+    Pantry,
+    PantryProduct,
+
+    Recipe,
+    RecipeCategory,
+    RecipeProduct,
+
     Product,
     ProductCategory,
     ProductUnit,
@@ -35,7 +42,8 @@ class ProductUnitAdmin(ModelAdmin):
     """
     ProductUnit admin
     """
-    pass
+    list_display = ('uid', 'name', 'abbreviation')
+    list_editable = ('name', 'abbreviation',)
 
 
 @admin.register(Product)
@@ -106,3 +114,55 @@ class StoreAdmin(ModelAdmin):
         StoreSectionInline,
         StoreProductInline,
     ]
+
+
+class PantryProductInline(TabularInline):
+    """
+    PantryProduct inline
+    """
+    model = PantryProduct
+    extra = 0
+
+
+@admin.register(Pantry)
+class PantryAdmin(ModelAdmin):
+    """
+    Pantry admin
+    """
+    list_display = ('name', )
+    inlines = [
+        PantryProductInline,
+    ]
+
+
+@admin.register(RecipeCategory)
+class RecipeCategoryAdmin(BaseCategoryAdmin):
+    """
+    RecipeCategory admin
+    """
+    pass
+
+
+class RecipeProductInline(TabularInline):
+    """
+    RecipeProduct inline
+    """
+    model = RecipeProduct
+    extra = 0
+
+
+@admin.register(Recipe)
+class RecipeAdmin(ModelAdmin):
+    """
+    Recipe admin
+    """
+    list_display = ('name', 'url', 'categories_list')
+    inlines = [
+        RecipeProductInline,
+    ]
+
+    def categories_list(self, obj):
+        """
+        Return categories list
+        """
+        return ', '.join([category.name for category in obj.categories.all()])

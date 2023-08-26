@@ -1,5 +1,5 @@
-mutation UpdateProduct($uid: UUID!, $name: String, $targetQuantity: Float, $currentStock: Float, $unit: UUID, $categories: [UUID], $stores: [JSONString]) {
-  updateProduct(input: { uid: $uid, name: $name, targetQuantity: $targetQuantity, currentStock: $currentStock, unit: $unit, categories: $categories, stores: $stores }) {
+mutation UpdateProduct($uid: UUID!, $name: String, $categories: [UUID], $stores: [JSONString]) {
+  updateProduct(input: { uid: $uid, name: $name, categories: $categories, stores: $stores }) {
     product {
       uid
       name

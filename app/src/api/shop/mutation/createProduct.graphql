@@ -1,14 +1,8 @@
-mutation CreateProduct($name: String!, $targetQuantity: Float, $currentStock: Float, $unit: UUID, $categories: [UUID], $stores: [JSONString]) {
-  createProduct(input: { name: $name, targetQuantity: $targetQuantity, currentStock: $currentStock, unit: $unit, categories: $categories, stores: $stores }) {
+mutation CreateProduct($name: String! $categories: [UUID], $stores: [JSONString]) {
+  createProduct(input: { name: $name, categories: $categories, stores: $stores }) {
     product {
       uid
       name
-      targetQuantity
-      currentStock
-      unit {
-        uid
-        name
-      }
       categories {
         edges {
           node {

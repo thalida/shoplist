@@ -1,5 +1,5 @@
-query AllProducts($first: Int, $after: String, $last: Int, $before: String, $orderBy: String, $uid: UUID, $name: String,  $name_Icontains: String, $categories: [ID], $stores: [ID], $currentStock: Float, $currentStock_Lt: Float, $currentStock_Gt: Float,  $targetQuantity: Float, $targetQuantity_Lt: Float, $targetQuantity_Gt: Float, $unit: [ID], $toBuy: Boolean) {
-  allProducts(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy, uid: $uid, name: $name, name_Icontains: $name_Icontains, categories: $categories, stores: $stores, currentStock: $currentStock, currentStock_Lt: $currentStock_Lt, currentStock_Gt: $currentStock_Gt, targetQuantity: $targetQuantity, targetQuantity_Lt: $targetQuantity_Lt, targetQuantity_Gt: $targetQuantity_Gt, unit: $unit, toBuy: $toBuy) {
+query AllProducts($first: Int, $after: String, $last: Int, $before: String, $orderBy: String, $uid: UUID, $name: String,  $name_Icontains: String, $categories: [ID], $stores: [ID]) {
+  allProducts(first: $first, after: $after, last: $last, before: $before, orderBy: $orderBy, uid: $uid, name: $name, name_Icontains: $name_Icontains, categories: $categories, stores: $stores) {
     totalCount
     filteredCount
     pageInfo {
@@ -12,12 +12,6 @@ query AllProducts($first: Int, $after: String, $last: Int, $before: String, $ord
       node {
         uid
         name
-        currentStock
-        targetQuantity
-        unit {
-          uid
-          name
-        }
         categories {
           edges {
             node {

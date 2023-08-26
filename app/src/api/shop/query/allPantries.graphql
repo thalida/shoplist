@@ -1,0 +1,16 @@
+query AllPantries($uid: UUID, $name: String, $name_Icontains: String, $orderBy: String, $products: [ID]) {
+  allPantries(uid: $uid, name: $name, name_Icontains: $name_Icontains, orderBy: $orderBy, products: $products) {
+    totalCount
+    filteredCount
+    edges {
+      node {
+        uid
+        name
+        products {
+          totalCount
+          filteredCount
+        }
+      }
+    }
+  }
+}

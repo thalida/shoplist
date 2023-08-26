@@ -9,6 +9,9 @@ from shop.graphql.nodes import (
     StoreNode,
     StoreCategoryNode,
     StoreSectionNode,
+    PantryNode,
+    RecipeNode,
+    RecipeCategoryNode,
 )
 
 from shop.graphql.mutations import (
@@ -36,6 +39,15 @@ class ShopQuery(graphene.ObjectType):
 
     store_section = RelayUUIDNode.Field(StoreSectionNode)
     all_store_sections = DjangoFilterConnectionField(StoreSectionNode)
+
+    pantry = RelayUUIDNode.Field(PantryNode)
+    all_pantries = DjangoFilterConnectionField(PantryNode)
+
+    recipe = RelayUUIDNode.Field(RecipeNode)
+    all_recipes = DjangoFilterConnectionField(RecipeNode)
+
+    recipe_category = RelayUUIDNode.Field(RecipeCategoryNode)
+    all_recipe_categories = DjangoFilterConnectionField(RecipeCategoryNode)
 
 
 

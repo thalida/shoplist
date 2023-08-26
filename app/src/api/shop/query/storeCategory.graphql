@@ -1,0 +1,7 @@
+query StoreCategory($uid: ID!) {
+  storeCategory(id: $uid) {
+    uid
+    name
+    color
+  }
+}

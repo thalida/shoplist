@@ -7,6 +7,92 @@ from django.utils.translation import gettext_lazy as _
 from shop.choices import ColorChoice
 
 
+class Pantry(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50, default='My Pantry')
+    products = models.ManyToManyField('Product', through='PantryProduct', related_name='pantries')
+
+    def __str__(self):
+        return self.name
+
+
+class PantryProduct(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    pantry = models.ForeignKey('Pantry', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.FloatField(default=0)
+    minimum_quantity = models.FloatField(default=1)
+    unit = models.ForeignKey('ProductUnit', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    buy_threshold = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        default=0.50,
+    )
+    expiration_date = models.DateField(blank=True, null=True, default=None)
+    notes = models.TextField(blank=True, null=True, default=None)
+
+    def __str__(self):
+        return self.product.name
+
+    class Meta:
+        ordering = ['product__name']
+
+
+class Recipe(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True, default=None)
+    url = models.URLField(blank=True, null=True, default=None)
+
+    categories = models.ManyToManyField('RecipeCategory', blank=True, related_name='recipes')
+    products = models.ManyToManyField('Product', through='RecipeProduct', related_name='recipes')
+
+    is_planned = models.BooleanField(default=False)
+    is_favorite = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+class RecipeCategory(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=50)
+    color = models.CharField(max_length=10, choices=ColorChoice.choices, default=ColorChoice.WHITE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('Recipe Categories')
+
+
+class RecipeProduct(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.FloatField(default=1)
+    unit = models.ForeignKey('ProductUnit', blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    notes = models.TextField(blank=True, null=True, default=None)
+
+    def __str__(self):
+        return self.product.name
+
+
 class Product(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -15,10 +101,6 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True, default=None)
     categories = models.ManyToManyField('ProductCategory', blank=True, related_name='products')
-
-    target_quantity = models.FloatField(default=1)
-    current_stock = models.FloatField(default=0)
-    unit = models.ForeignKey('ProductUnit', blank=True, null=True, default=None, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name

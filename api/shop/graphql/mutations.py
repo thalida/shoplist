@@ -43,9 +43,6 @@ class CreateProduct(graphene.relay.ClientIDMutation):
         name = graphene.String(required=True)
         categories = graphene.List(graphene.UUID, required=False)
         stores = graphene.List(graphene.JSONString, required=False)
-        target_quantity = graphene.Float(required=False)
-        current_stock = graphene.Float(required=False)
-        unit = graphene.UUID(required=False)
 
     product = graphene.Field(ProductNode)
 
@@ -97,10 +94,6 @@ class UpdateProduct(graphene.relay.ClientIDMutation):
         name = graphene.String(required=False)
         categories = graphene.List(graphene.UUID, required=False)
         stores = graphene.List(graphene.JSONString, required=False)
-        target_quantity = graphene.Float(required=False)
-        current_stock = graphene.Float(required=False)
-        unit = graphene.UUID(required=False)
-
 
     product = graphene.Field(ProductNode)
 

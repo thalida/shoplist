@@ -1,0 +1,93 @@
+query AllRecipesWithProducts(
+  $uid: UUID,
+  $offset: Int,
+  $before: String,
+  $after: String,
+  $first: Int,
+  $last: Int,
+  $name: String,
+  $name_Icontains: String,
+  $description: String,
+  $description_Icontains: String,
+  $url: String,
+  $url_Icontains: String,
+  $isPlanned: Boolean,
+  $isFavorite: Boolean,
+  $categories: [ID],
+  $products: [ID],
+  $orderBy: String,
+) {
+  allRecipes(
+    uid: $uid,
+    offset: $offset,
+    before: $before,
+    after: $after,
+    first: $first,
+    last: $last,
+    name: $name,
+    name_Icontains: $name_Icontains,
+    description: $description,
+    description_Icontains: $description_Icontains,
+    url: $url,
+    url_Icontains: $url_Icontains,
+    isPlanned: $isPlanned,
+    isFavorite: $isFavorite,
+    categories: $categories,
+    products: $products,
+    orderBy: $orderBy,
+  ) {
+    totalCount
+    filteredCount
+    edges {
+      node {
+        uid
+        name
+        description
+        products {
+          totalCount
+          filteredCount
+          edges {
+            node {
+              id
+              quantity
+              unit {
+                uid
+                name
+              }
+              notes
+              product {
+                uid
+                name
+                categories {
+                  edges {
+                    node {
+                      uid
+                      name
+                      color
+                    }
+                  }
+                }
+                stores {
+                  edges {
+                    node {
+                      id
+                      price
+                      section {
+                        uid
+                        name
+                      }
+                      store {
+                        uid
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

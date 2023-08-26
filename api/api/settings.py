@@ -265,6 +265,16 @@ UNFOLD = {
                         "link": reverse_lazy("admin:index"),
                     },
                     {
+                        "title": _("Pantry"),
+                        "icon": "shopping_bag",
+                        "link": reverse_lazy("admin:shop_pantry_changelist"),
+                    },
+                    {
+                        "title": _("Recipes"),
+                        "icon": "shopping_bag",
+                        "link": reverse_lazy("admin:shop_recipe_changelist"),
+                    },
+                    {
                         "title": _("Products"),
                         "icon": "shopping_bag",
                         "link": reverse_lazy("admin:shop_product_changelist"),
@@ -304,6 +314,35 @@ UNFOLD = {
                     "link": reverse_lazy(
                         "admin:social_django_usersocialauth_changelist"
                     ),
+                },
+            ],
+        },
+        {
+            "models": [
+                "shop.pantry",
+                "shop.pantryproduct",
+            ],
+            "items": [
+                {
+                    "title": _("All Pantries"),
+                    "link": reverse_lazy("admin:shop_pantry_changelist"),
+                },
+            ],
+        },
+        {
+            "models": [
+                "shop.recipe",
+                "shop.recipecategory",
+                "shop.recipeproduct",
+            ],
+            "items": [
+                {
+                    "title": _("All Recipes"),
+                    "link": reverse_lazy("admin:shop_recipe_changelist"),
+                },
+                {
+                    "title": _("Recipe Categories"),
+                    "link": reverse_lazy("admin:shop_recipecategory_changelist"),
                 },
             ],
         },
