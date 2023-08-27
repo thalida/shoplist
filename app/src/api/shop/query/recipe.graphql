@@ -1,0 +1,11 @@
+query Recipe($uid: ID!) {
+  recipe(id: $uid) {
+    uid
+    name
+    description
+    products {
+      totalCount
+      filteredCount
+    }
+  }
+}

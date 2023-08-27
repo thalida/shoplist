@@ -30,6 +30,7 @@ const documents = {
     "query Product($uid: ID!) {\n  product(id: $uid) {\n    uid\n    name\n    categories {\n      edges {\n        node {\n          uid\n          name\n          color\n        }\n      }\n    }\n    stores {\n      edges {\n        node {\n          id\n          price\n          section {\n            uid\n            name\n          }\n          store {\n            uid\n            name\n          }\n        }\n      }\n    }\n  }\n}": types.ProductDocument,
     "query ProductCategory($uid: ID!) {\n  productCategory(id: $uid) {\n    uid\n    name\n    color\n  }\n}": types.ProductCategoryDocument,
     "query ProductUnit($uid: ID!) {\n  productUnit(id: $uid) {\n    uid\n    name\n    abbreviation\n  }\n}": types.ProductUnitDocument,
+    "query Recipe($uid: ID!) {\n  recipe(id: $uid) {\n    uid\n    name\n    description\n    products {\n      totalCount\n      filteredCount\n    }\n  }\n}": types.RecipeDocument,
     "query RecipeCategory($uid: ID!) {\n  recipeCategory(id: $uid) {\n    uid\n    name\n    color\n  }\n}": types.RecipeCategoryDocument,
     "query Store($uid: ID!) {\n  store(id: $uid) {\n    uid\n    name\n    categories {\n      edges {\n        node {\n          uid\n          name\n          color\n        }\n      }\n    }\n    sections {\n      edges {\n        node {\n          uid\n          name\n          sectionType {\n            uid\n            name\n          }\n        }\n      }\n    }\n    products {\n      edges {\n        node {\n          price\n          section {\n            uid\n            name\n            sectionType {\n              uid\n              name\n            }\n          }\n          product {\n            uid\n            name\n          }\n        }\n      }\n    }\n  }\n}": types.StoreDocument,
     "query StoreCategory($uid: ID!) {\n  storeCategory(id: $uid) {\n    uid\n    name\n    color\n  }\n}": types.StoreCategoryDocument,
@@ -121,6 +122,10 @@ export function graphql(source: "query ProductCategory($uid: ID!) {\n  productCa
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query ProductUnit($uid: ID!) {\n  productUnit(id: $uid) {\n    uid\n    name\n    abbreviation\n  }\n}"): (typeof documents)["query ProductUnit($uid: ID!) {\n  productUnit(id: $uid) {\n    uid\n    name\n    abbreviation\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query Recipe($uid: ID!) {\n  recipe(id: $uid) {\n    uid\n    name\n    description\n    products {\n      totalCount\n      filteredCount\n    }\n  }\n}"): (typeof documents)["query Recipe($uid: ID!) {\n  recipe(id: $uid) {\n    uid\n    name\n    description\n    products {\n      totalCount\n      filteredCount\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
